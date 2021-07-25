@@ -101,7 +101,7 @@ if [[ ${DOSETUP,,} =~ "y" ]] ; then
    sudo apt-get install -y libminiupnpc-dev
    sudo apt-get install -y autoconf
    sudo apt-get install -y automake unzip
-   sudo add-apt-repository -y ppa:bitcoin/bitcoin
+   sudo add-apt-repository -y ppa:luke-jr/bitcoincore
    sudo apt-get update
    sudo apt-get install -y libdb4.8-dev libdb4.8++-dev
    sudo apt-get install -y dos2unix
