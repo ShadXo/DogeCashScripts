@@ -282,7 +282,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
       #NODEIP="127.0.0.1"
       break
     fi
-    exit
+    #exit
     echo "Creating fake IP."
          BASEIP="1.2.3."
          IP=$BASEIP$STARTNUMBER

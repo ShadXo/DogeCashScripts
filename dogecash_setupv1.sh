@@ -109,15 +109,18 @@ if [[ ${DOSETUP,,} =~ "y" ]] ; then
    sudo apt-get install -y dos2unix
    sudo apt-get install -y jq
 
-   cd /var
-   sudo touch swap.img
-   sudo chmod 600 swap.img
-   sudo dd if=/dev/zero of=/var/swap.img bs=1024k count=2000
-   sudo mkswap /var/swap.img
-   sudo swapon /var/swap.img
-   sudo free
-   sudo echo "/var/swap.img none swap sw 0 0" >> /etc/fstab
-   cd
+   if [ $(free | awk '/^Swap:/ {exit !$2}') ] || [ ! -f "/var/swap.img" ];then
+       echo "No proper swap, creating it"
+       sudo touch /var/swap.img
+       sudo chmod 600 /var/swap.img
+       sudo dd if=/dev/zero of=/var/swap.img bs=1024k count=2000
+       sudo mkswap /var/swap.img
+       sudo swapon /var/swap.img
+       sudo free
+       sudo echo "/var/swap.img none swap sw 0 0" >> /etc/fstab
+   else
+       echo "All good, we have a swap"
+   fi
 
    ## COMPILE AND INSTALL
    if [ -d "$CONF_DIR_TMP" ]; then
@@ -151,7 +154,7 @@ if [[ ${DOSETUP,,} =~ "y" ]] ; then
    sudo ufw status
 
    mkdir -p ~/bin
-   echo 'export PATH=~/bin:$PATH' > ~/.bash_aliases
+   echo 'export PATH=~/bin:$PATH' >> ~/.bash_aliases
    source ~/.bashrc
 fi
 
