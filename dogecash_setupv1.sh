@@ -21,7 +21,7 @@ CONF_DIR_TMP=~/"${NAME}_tmp"
 BOOTSTRAPURL="https://www.dropbox.com/s/s4vy92sczk9c10s/blocks_n_chains.tar.gz"
 ADDNODESURL="https://www.dropbox.com/s/s0pdil1rehsy4fu/peers.txt?dl=1"
 PORT=56740
-RPCPORT=56741
+RPCPORT=57740
 
 cd ~
 echo "******************************************************************************"
@@ -159,14 +159,31 @@ rm ~/bin/masternode_config.txt &>/dev/null &
 COUNTER=1
 
 MNCOUNT="1"
-REBOOTRESTART=""
+#REBOOTRESTART=""
 re='^[0-9]+$'
 while ! [[ $MNCOUNT =~ $re ]] ; do
    echo -e "${YELLOW}How many nodes do you want to create on this server?, followed by [ENTER]:${NC}"
    read MNCOUNT
-   echo -e "${YELLOW}Do you want wallets to restart on reboot? [y/n]${NC}"
-   read REBOOTRESTART
+   #echo -e "${YELLOW}Do you want to use TOR, additional dependencies needed (no if you dont know what this does)? [y/n]${NC}"
+   #read TOR
+   #echo -e "${YELLOW}Do you want wallets to restart on reboot? [y/n]${NC}"
+   #read REBOOTRESTART
 done
+
+if [[ ${TOR,,} =~ "y" ]] ; then
+  if (service --status-all | grep -w "tor" &>/dev/null); then
+    echo ""
+ else
+   sudo apt install -y tor
+   echo -e 'ControlPort 9051\nLongLivedPorts 56740' >> /etc/tor/torrc
+   systemctl stop tor
+   systemctl start tor
+ fi
+fi
+
+REBOOTRESTART=""
+echo -e "${YELLOW}Do you want wallets to restart on reboot? [y/n]${NC}"
+read REBOOTRESTART
 
 for (( ; ; ))
 do
@@ -258,6 +275,11 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
       else
     echo -e "${RED}IP: $NODEIP is already used.${NC}"
     #echo "IP already used."
+    if [[ ${TOR,,} =~ "y" ]] ; then
+      echo "Using TOR"
+      #NODEIP="127.0.0.1"
+      break
+    fi
     exit
     echo "Creating fake IP."
          BASEIP="1.2.3."
@@ -277,18 +299,20 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
    done
    echo "IP "$IP
 
+   TORPORT=$PORT
    PORT1=""
    for (( ; ; ))
    do
-      PORT1=$(netstat -peanut | grep -i listen | grep -i $PORT1)
+      PORT1=$(netstat -peanut | grep -i listen | grep -i $TORPORT)
 
       if [ -z "$PORT1" ]; then
          break
       else
-         PORT1=$[PORT + 1]
+         TORPORT=$[TORPORT + 1]
       fi
    done
    echo "PORT "$PORT
+   echo "TORPORT "$TORPORT
 
    RPCPORT1=""
    for (( ; ; ))
@@ -331,8 +355,14 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
    echo "" >> ${NAME}.conf_TEMP
    #echo "port=$PORT" >> ${NAME}.conf_TEMP
    echo "masternodeaddr=$EXTERNALIP:$PORT" >> ${NAME}.conf_TEMP
-   echo "bind=$IP:$PORT" >> ${NAME}.conf_TEMP
-
+   #echo "bind=$IP:$PORT" >> ${NAME}.conf_TEMP
+   if ! [[ ${TOR,,} =~ "y" ]] ; then
+      echo "bind=$IP:$PORT" >> ${NAME}.conf_TEMP
+   else
+      echo "bind=$IP:$TORPORT" >> ${NAME}.conf_TEMP
+      echo "proxy=127.0.0.1:9050" >> ${NAME}.conf_TEMP
+      echo "torcontrol=127.0.0.1:9051" >> ${NAME}.conf_TEMP
+   fi
    if [ -z "$PRIVKEY" ]; then
       echo ""
    else
