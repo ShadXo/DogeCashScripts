@@ -72,6 +72,8 @@ function get_ip() {
   fi
 }
 
+apt-get install -y net-tools > /dev/null
+
 get_ip
 #IP="[${NODEIP}]"
 PUBIPv4=$( timeout --signal=SIGKILL 10s wget -4qO- -T 10 -t 2 -o- "--bind-address=${NODEIP}" http://ipinfo.io/ip )

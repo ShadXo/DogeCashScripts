@@ -72,6 +72,8 @@ function get_ip() {
   fi
 }
 
+apt-get install -y net-tools > /dev/null
+
 get_ip
 #IP="[${NODEIP}]"
 PUBIPv4=$( timeout --signal=SIGKILL 10s wget -4qO- -T 10 -t 2 -o- "--bind-address=${NODEIP}" http://ipinfo.io/ip )
@@ -280,7 +282,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
       #NODEIP="127.0.0.1"
       break
     fi
-    #exit
+    exit
     echo "Creating fake IP."
          BASEIP="1.2.3."
          IP=$BASEIP$STARTNUMBER
