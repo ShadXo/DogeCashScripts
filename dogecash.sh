@@ -36,9 +36,10 @@ echo -e "5. STOP NODES" #  -> DOGECASH_STOP.SH" # OK
 echo -e "6. INSTALL NEW NODES" #  -> DOGECASH_SETUPV1.SH" # OK
 echo -e "7. CHECK NODES STATUS" #  -> DOGECASH_CHECK_STATUS.SH" # OK
 echo -e "8. RESYNC SPECIFIC NODE (useful if node is stopped)" # -> DOGECASH_RESYNC.sh # OK
-echo -e "9. CALCULATE FREE MEMORY AND CPU FOR NEW NODES" # -> memory_cpu_sysinfo.sh # OK
-echo -e "${YELLOW}10. DOGECASH LOGO${RED}" # DOGECASH LOGO
-echo -e "11. EXIT${NC}" # OK
+echo -e "9. REMOVE SPECIFIC NODE" # -> DOGECASH_REMOVE.sh # OK
+echo -e "10. CALCULATE FREE MEMORY AND CPU FOR NEW NODES" # -> memory_cpu_sysinfo.sh # OK
+echo -e "${YELLOW}11. DOGECASH LOGO${RED}" # DOGECASH LOGO
+echo -e "12. EXIT${NC}" # OK
 echo "---------------------------------------"
 echo "choose option number:"
 read OPTION
@@ -93,23 +94,30 @@ elif [[ ${OPTION} == "7" ]] ; then
   dos2unix dogecash_check_status.sh > /dev/null 2>&1
   /bin/bash ./dogecash_check_status.sh $ALIAS
 elif [[ ${OPTION} == "8" ]] ; then
-  echo -e "${RED}For which node do you want to check masternode status? Enter alias (mandatory!)${NC}"
+  echo -e "${RED}Which node do you want to resync? Enter alias (mandatory!)${NC}"
   read ALIAS
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_resync.sh -O dogecash_resync.sh > /dev/null 2>&1
   chmod 777 dogecash_resync.sh
   dos2unix dogecash_resync.sh > /dev/null 2>&1
   /bin/bash ./dogecash_resync.sh $ALIAS
 elif [[ ${OPTION} == "9" ]] ; then
+  echo -e "${RED}Which node do you want to remove? Enter alias (mandatory!)${NC}"
+  read ALIAS
+  wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_remove.sh -O dogecash_remove.sh > /dev/null 2>&1
+  chmod 777 dogecash_remove.sh
+  dos2unix dogecash_remove.sh > /dev/null 2>&1
+  /bin/bash ./dogecash_remove.sh $ALIAS
+elif [[ ${OPTION} == "10" ]] ; then
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/memory_cpu_sysinfo.sh -O memory_cpu_sysinfo.sh > /dev/null 2>&1
   chmod 777 memory_cpu_sysinfo.sh
   dos2unix memory_cpu_sysinfo.sh > /dev/null 2>&1
   /bin/bash ./memory_cpu_sysinfo.sh
-elif [[ ${OPTION} == "10" ]] ; then
+elif [[ ${OPTION} == "11" ]] ; then
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_logo.sh -O dogecash_logo.sh > /dev/null 2>&1
   chmod 777 dogecash_logo.sh
   dos2unix dogecash_logo.sh > /dev/null 2>&1
   /bin/bash ./dogecash_logo.sh
-elif [[ ${OPTION} == "11" ]] ; then
+elif [[ ${OPTION} == "12" ]] ; then
   exit 0
 elif [[ ${OPTION} == "50" ]] ; then
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_setupv1-f.sh -O dogecash_setupv1-f.sh > /dev/null 2>&1
