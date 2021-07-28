@@ -51,7 +51,7 @@ function get_ip() {
   declare -a NODE_IPS
   for ips in $(netstat -i | awk '!/Kernel|Iface|lo/ {print $1," "}')
   do
-    NODE_IPS+=($(ip addr show dev $ips | grep inet | awk -F '[ \t]+|/' '{print $3}' | grep -v ^fe80 | grep -v ^::1 | grep -v ^1.2.3))
+    NODE_IPS+=($(ip addr show dev $ips | grep inet | awk -F '[ \t]+|/' '{print $3}' | grep -v ^fe80 | grep -v ^::1 | grep -v ^1.2.3 | sort -V))
     #NODE_IPS+=($(curl --interface $ips --connect-timeout 2 -s4 icanhazip.com))
     #NODE_IPS+=($(curl --interface $ips --connect-timeout 2 -s6 icanhazip.com))
   done
