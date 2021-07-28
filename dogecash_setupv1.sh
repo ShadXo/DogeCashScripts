@@ -303,7 +303,9 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
       break
    done
    echo "IP "$IP
+   echo "PORT "$PORT
 
+   if ! [[ ${TOR,,} =~ "y" ]] ; then
    TORPORT=$PORT
    PORT1=""
    for (( ; ; ))
@@ -316,8 +318,8 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
          TORPORT=$[TORPORT + 1]
       fi
    done
-   echo "PORT "$PORT
    echo "TORPORT "$TORPORT
+ fi
 
    RPCPORT1=""
    for (( ; ; ))
