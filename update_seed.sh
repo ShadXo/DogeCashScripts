@@ -1,32 +1,54 @@
 echo
 echo "DogeCash - Masternode updater"
 echo ""
-echo "Welcome to the MONK Masternode update script."
-echo "Wallet v5.4.1"
+echo "Welcome to the DogeCah Masternode update script."
+echo "Wallet v5.4.2"
 echo
 
+NAME="dogecash"
+WALLETVERSION="5.4.2"
+WALLETDLFOLDER="${NAME}-${WALLETVERSION}"
+WALLETDL="${WALLETDLFOLDER}-x86_64-linux-gnu.tar.gz"
+URL="https://github.com/dogecash/dogecash/releases/download/${WALLETVERSION}/${WALLETDL}"
+CONF_DIR_TMP=~/"${NAME}_tmp"
+
+
+for filename in ~/bin/${NAME}-cli*.sh; do
+  sh $filename stop
+  sleep 1
+done
+
 cd ~
-sudo killall -9 dogecashd
-sudo rm -rdf /usr/local/bin/dogecash*
+sudo killall -9 ${NAME}d
+sudo rm -rdf /usr/bin/${NAME}*
 cd
 
-mkdir -p DOGECASH_TMP
-cd DOGECASH_TMP
-wget https://github.com/dogecash/dogecash/releases/download/5.4.1/dogecash-5.4.1-x86_64-linux-gnu.tar.gz
-sudo chmod 775 dogecash-5.4.1-x86_64-linux-gnu.tar.gz
-tar -xvzf dogecash-5.4.1-x86_64-linux-gnu.tar.gz
+mkdir -p $CONF_DIR_TMP
+mkdir -p ~/.dogecash-params
 
-rm -f dogecash-5.4.1-x86_64-linux-gnu.tar.gz
-sudo chmod 775 ./dogecash-5.4.1/bin/*
-sudo mv ./dogecash-5.4.1/bin/* /usr/bin
+cd $CONF_DIR_TMP
+wget ${URL}
+sudo chmod 775 ${WALLETDL}
+tar -xvzf ${WALLETDL}
+#unzip ${WALLETDL} -d ${WALLETDLFOLDER}
+#rm -f ${WALLETDL}
+
+cd ./${WALLETDLFOLDER}
+sudo chmod 775 *
+sudo mv ./bin/${NAME}* /usr/bin
+sudo mv ./share/dogecash/*.params ~/.dogecash-params
 
 cd ~
-rm -rdf DOGECASH_TMP
+rm -rfd $CONF_DIR_TMP
 
-dogecashd -reindex
+for filename in ~/bin/${NAME}d*.sh; do
+  echo $filename
+  sh $filename -reindex
+  sleep 1
+done
 
-sleep 1
-
-dogecash-cli getinfo
+for filename in ~/bin/${NAME}-cli*.sh; do
+  sh $filename getinfo
+done
 
 echo "Your masternode wallets are now updated!"

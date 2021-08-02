@@ -34,17 +34,11 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
 	  LASTBLOCK=$(~/bin/${NAME}-cli_$DOGECASHNAME.sh getblockcount)
 	  GETBLOCKHASH=$(~/bin/${NAME}-cli_$DOGECASHNAME.sh getblockhash $LASTBLOCK)
 
-	  #LASTBLOCKCOINEXPLORERDOGECASH=$(curl -s4 https://www.coinexplorer.net/api/DOGECASH/block/latest)
-	  #BLOCKHASHCOINEXPLORERDOGECASH=', ' read -r -a array <<< $LASTBLOCKCOINEXPLORERDOGECASH
-	  #BLOCKHASHCOINEXPLORERDOGECASH=${array[6]}
-	  #BLOCKHASHCOINEXPLORERDOGECASH=$(echo $BLOCKHASHCOINEXPLORERDOGECASH | tr , " ")
-	  #BLOCKHASHCOINEXPLORERDOGECASH=$(echo $BLOCKHASHCOINEXPLORERDOGECASH | tr '"' " ")
-	  #BLOCKHASHCOINEXPLORERDOGECASH="$(echo -e "${BLOCKHASHCOINEXPLORERDOGECASH}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-	  #BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://www.coinexplorer.net/api/DOGECASH/block/latest | jq -r ".result.hash")
-
-    BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
+    #BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
+    BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
 
     #LATESTWALLETVERSION=$(curl -s4 https://https://explorer.decenomy.net/coreapi/v1/coins/DOGECASH?expand=overview | jq -r ".response.versions.wallet")
+    #LATESTWALLETVERSION=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.version")
 
 	  WALLETVERSION=$(~/bin/${NAME}-cli_$DOGECASHNAME.sh getinfo | grep -i \"version\")
 	  WALLETVERSION=$(echo $WALLETVERSION | tr , " ")
@@ -52,7 +46,7 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
 	  WALLETVERSION=$(echo $WALLETVERSION | tr 'version : ' " ")
 	  WALLETVERSION=$(echo $WALLETVERSION | tr -d ' ' )
 
-	  if ! [ "$WALLETVERSION" == "5040100" ]; then
+	  if ! [ "$WALLETVERSION" == "5040200" ]; then
 	     echo "!!!Your wallet $DOGECASHNAME is OUTDATED!!!"
 	  fi
 

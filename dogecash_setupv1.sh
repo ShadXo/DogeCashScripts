@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 
 # CONFIGURATION
 NAME="dogecash"
-WALLETVERSION="5.4.1"
+WALLETVERSION="5.4.2"
 
 # ADDITINAL CONFIGURATION
 WALLETDLFOLDER="${NAME}-${WALLETVERSION}"
@@ -386,13 +386,13 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
 	   if [ -z "$PID" ]; then
          # start wallet
          sh ~/bin/${NAME}d_$ALIASONE.sh
-	      sleep 1
+	      sleep 1 # wait 1 second
 	   fi
 
 	   for (( ; ; ))
 	   do
 	      echo "Please wait ..."
-         sleep 2
+         sleep 2 # wait 2 seconds
 	      PRIVKEY=$(~/bin/${NAME}-cli_${ALIASONE}.sh createmasternodekey)
 	      echo "PRIVKEY=$PRIVKEY"
 	      if [ -z "$PRIVKEY" ]; then
@@ -402,7 +402,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
          fi
 	   done
 
-	   sleep 1
+	   sleep 1 # wait 1 second
 
 	   for (( ; ; ))
 	   do
