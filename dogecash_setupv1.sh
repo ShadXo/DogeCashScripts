@@ -424,16 +424,15 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
 		      echo "masternodeprivkey=$PRIVKEY" >> $CONF_DIR/${NAME}.conf
 		      break
 	      fi
-
-        ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf )
-        sed -i '/addnode\=/d' $CONF_DIR/${NAME}.conf
-        sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
-        echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf
-
 	   done
    fi
 
-   sleep 2
+   ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf )
+   sed -i '/addnode\=/d' $CONF_DIR/${NAME}.conf
+   sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
+   echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf
+
+   sleep 2 # wait 2 seconds
    PID=`ps -ef | grep -i ${NAME} | grep -i ${ALIAS}/ | grep -v grep | awk '{print $2}'`
    echo "PID="$PID
 
