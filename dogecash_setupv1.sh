@@ -25,7 +25,7 @@ RPCPORT=57740
 
 cd ~
 echo "******************************************************************************"
-echo "* Ubuntu 16.04 is the recommended operating system for this install.         *"
+echo "* Ubuntu 18.04 or newer operating system is recommended for this install.    *"
 echo "*                                                                            *"
 echo "* This script will install and configure your ${NAME} Coin masternodes (v${WALLETVERSION}).*"
 echo "******************************************************************************"
@@ -37,15 +37,15 @@ echo "!                                                 !"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 echo && echo && echo
 
-if [[ $(lsb_release -d) != *16.04* ]]; then
-   echo -e "${RED}The operating system is not Ubuntu 16.04. You must be running on Ubuntu 16.04! Do you really want to continue? [y/n]${NC}"
-   read OS_QUESTION
-   if [[ ${OS_QUESTION,,} =~ "y" ]] ; then
-      echo -e "${RED}You are on your own now!${NC}"
-   else
-      exit -1
-   fi
-fi
+#if [[ $(lsb_release -d) != *16.04* ]]; then
+#   echo -e "${RED}The operating system is not Ubuntu 16.04. You must be running on Ubuntu 16.04! Do you really want to continue? [y/n]${NC}"
+#   read OS_QUESTION
+#   if [[ ${OS_QUESTION,,} =~ "y" ]] ; then
+#      echo -e "${RED}You are on your own now!${NC}"
+#   else
+#      exit -1
+#   fi
+#fi
 
 function get_ip() {
   declare -a NODE_IPS
@@ -171,7 +171,7 @@ while ! [[ $MNCOUNT =~ $re ]] ; do
    read MNCOUNT
    #echo -e "${YELLOW}Do you want to use TOR, additional dependencies needed (no if you dont know what this does)? [y/n]${NC}"
    #read TOR
-   #echo -e "${YELLOW}Do you want wallets to restart on reboot? [y/n]${NC}"
+   #echo -e "${YELLOW}Do you want the wallet to restart on reboot? [y/n]${NC}"
    #read REBOOTRESTART
 done
 
@@ -186,9 +186,9 @@ if [[ ${TOR,,} =~ "y" ]] ; then
  fi
 fi
 
-REBOOTRESTART=""
-echo -e "${YELLOW}Do you want wallets to restart on reboot? [y/n]${NC}"
-read REBOOTRESTART
+REBOOTRESTART="y"
+#echo -e "${YELLOW}Do you want the wallet to restart on reboot? [y/n]${NC}"
+#read REBOOTRESTART
 
 for (( ; ; ))
 do

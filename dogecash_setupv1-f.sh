@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 
 # CONFIGURATION
 NAME="dogecash"
-WALLETVERSION="5.4.2"
+WALLETVERSION="5.4.3"
 
 # ADDITINAL CONFIGURATION
 WALLETDLFOLDER="${NAME}-${WALLETVERSION}"
@@ -25,7 +25,7 @@ RPCPORT=57740
 
 cd ~
 echo "******************************************************************************"
-echo "* Ubuntu 16.04 is the recommended operating system for this install.         *"
+echo "* Ubuntu 18.04 or newer operating system is recommended for this install.    *"
 echo "*                                                                            *"
 echo "* This script will install and configure your ${NAME} Coin masternodes (v${WALLETVERSION}).*"
 echo "******************************************************************************"
@@ -37,15 +37,15 @@ echo "!                                                 !"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 echo && echo && echo
 
-if [[ $(lsb_release -d) != *16.04* ]]; then
-   echo -e "${RED}The operating system is not Ubuntu 16.04. You must be running on Ubuntu 16.04! Do you really want to continue? [y/n]${NC}"
-   read OS_QUESTION
-   if [[ ${OS_QUESTION,,} =~ "y" ]] ; then
-      echo -e "${RED}You are on your own now!${NC}"
-   else
-      exit -1
-   fi
-fi
+#if [[ $(lsb_release -d) != *16.04* ]]; then
+#   echo -e "${RED}The operating system is not Ubuntu 16.04. You must be running on Ubuntu 16.04! Do you really want to continue? [y/n]${NC}"
+#   read OS_QUESTION
+#   if [[ ${OS_QUESTION,,} =~ "y" ]] ; then
+#      echo -e "${RED}You are on your own now!${NC}"
+#   else
+#      exit -1
+#   fi
+#fi
 
 function get_ip() {
   declare -a NODE_IPS
@@ -171,7 +171,7 @@ while ! [[ $MNCOUNT =~ $re ]] ; do
    read MNCOUNT
    #echo -e "${YELLOW}Do you want to use TOR, additional dependencies needed (no if you dont know what this does)? [y/n]${NC}"
    #read TOR
-   #echo -e "${YELLOW}Do you want wallets to restart on reboot? [y/n]${NC}"
+   #echo -e "${YELLOW}Do you want the wallet to restart on reboot? [y/n]${NC}"
    #read REBOOTRESTART
 done
 
@@ -186,9 +186,9 @@ if [[ ${TOR,,} =~ "y" ]] ; then
  fi
 fi
 
-REBOOTRESTART=""
-echo -e "${YELLOW}Do you want wallets to restart on reboot? [y/n]${NC}"
-read REBOOTRESTART
+REBOOTRESTART="y"
+#echo -e "${YELLOW}Do you want the wallet to restart on reboot? [y/n]${NC}"
+#read REBOOTRESTART
 
 for (( ; ; ))
 do
@@ -386,13 +386,13 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
 	   if [ -z "$PID" ]; then
          # start wallet
          sh ~/bin/${NAME}d_$ALIASONE.sh
-	      sleep 1
+	      sleep 1 # wait 1 second
 	   fi
 
 	   for (( ; ; ))
 	   do
 	      echo "Please wait ..."
-         sleep 2
+         sleep 2 # wait 2 seconds
 	      PRIVKEY=$(~/bin/${NAME}-cli_${ALIASONE}.sh createmasternodekey)
 	      echo "PRIVKEY=$PRIVKEY"
 	      if [ -z "$PRIVKEY" ]; then
@@ -402,7 +402,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
          fi
 	   done
 
-	   sleep 1
+	   sleep 1 # wait 1 second
 
 	   for (( ; ; ))
 	   do
@@ -424,16 +424,15 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
 		      echo "masternodeprivkey=$PRIVKEY" >> $CONF_DIR/${NAME}.conf
 		      break
 	      fi
-
-        ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf )
-        sed -i '/addnode\=/d' $CONF_DIR/${NAME}.conf
-        sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
-        echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf
-
 	   done
    fi
 
-   sleep 2
+   ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf )
+   sed -i '/addnode\=/d' $CONF_DIR/${NAME}.conf
+   sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
+   echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf
+
+   sleep 2 # wait 2 seconds
    PID=`ps -ef | grep -i ${NAME} | grep -i ${ALIAS}/ | grep -v grep | awk '{print $2}'`
    echo "PID="$PID
 
