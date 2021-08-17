@@ -389,6 +389,11 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
 	      sleep 1 # wait 1 second
 	   fi
 
+	   if [[ ${TOR,,} =~ "y" ]] ; then
+       union=$(grep "tor: Got service ID" ~/.${NAME}_${ALIASONE}/debug.log | sed -e 's/\(^.*advertising service \)\(.*\)\(:.*$\)/\2/' | head -n 1)
+       sudo sed -i "s/masternodeaddr=$EXTERNALIP/masternodeaddr=$union/g" $CONF_DIR/${NAME}.conf
+     fi
+
 	   for (( ; ; ))
 	   do
 	      echo "Please wait ..."
