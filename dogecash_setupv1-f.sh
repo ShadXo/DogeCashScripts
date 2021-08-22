@@ -449,7 +449,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
    fi
 
    if [ -z "$PID" ]; then
-      cd $CONF_DIR
+      cd $CONF_DIR_TMP
       echo "Copy BLOCKCHAIN without conf files"
 	   rm -R ./database &>/dev/null &
 	   rm -R ./blocks	&>/dev/null &
