@@ -35,8 +35,8 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
 	  GETBLOCKHASH=$(~/bin/${NAME}-cli_$DOGECASHNAME.sh getblockhash $LASTBLOCK)
 
     #BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
-    #BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
-    BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
+    BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
+    #BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
 
     #LATESTWALLETVERSION=$(curl -s4 https://https://explorer.decenomy.net/coreapi/v1/coins/DOGECASH?expand=overview | jq -r ".response.versions.wallet")
     #LATESTWALLETVERSION=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.version")

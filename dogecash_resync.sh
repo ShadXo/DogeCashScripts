@@ -61,8 +61,8 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
 	echo "GETBLOCKHASH="$GETBLOCKHASH
 
   #BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
-  #BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
-  BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
+  BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
+  #BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
 
 	echo "LASTBLOCK="$LASTBLOCK
 	echo "GETBLOCKHASH="$GETBLOCKHASH
