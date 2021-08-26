@@ -3,7 +3,8 @@
 NAME="dogecash"
 WALLET=$1
 LASTBLOCK=$2
-INCREMENT=$3
+#INCREMENT=$3
+INCREMENT=1
 
 for (( ; ; ))
 do
@@ -12,32 +13,34 @@ do
 	do
 		echo "LASTBLOCK=$LASTBLOCK"
 
-		for filename in /root/bin/${NAME}-cli*.sh; do
+		for filename in ~/bin/${NAME}-cli_$WALLET.sh; do
 			echo $filename
-			GETBLOCKHASHWALLET=$(~/bin/${NAME}-cli_$WALLET.sh getblockhash $LASTBLOCK)
-			GETBLOCKHASH=$($filename getblockhash $LASTBLOCK)
+			#GETBLOCKHASHEXPLORER=$(~/bin/${NAME}-cli_$WALLET.sh getblockhash $LASTBLOCK)
+			#GETBLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/block/$LASTBLOCK | jq -r ".hash")
+			GETBLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/height/$LASTBLOCK | jq -r ".result.hash")
+			GETBLOCKHASHWALLET=$($filename getblockhash $LASTBLOCK)
+
+			if [ -z "$GETBLOCKHASHEXPLORER" ]; then
+			  break
+			fi
 
 			if [ -z "$GETBLOCKHASHWALLET" ]; then
 			  break
 			fi
 
-			if [ -z "$GETBLOCKHASH" ]; then
-			  break
-			fi
-
+			echo "GETBLOCKHASHEXPLORER=$GETBLOCKHASHEXPLORER"
 			echo "GETBLOCKHASHWALLET=$GETBLOCKHASHWALLET"
-			echo "GETBLOCKHASH=$GETBLOCKHASH"
 		done
 
-		if [ -z "$GETBLOCKHASHWALLET" ]; then
+		if [ -z "$GETBLOCKHASHEXPLORER" ]; then
 		 break
 		fi
 
-		if [ -z "$GETBLOCKHASH" ]; then
+		if [ -z "$GETBLOCKHASHWALLET" ]; then
 		  break
 		fi
 
-		if [ "$GETBLOCKHASH" != "$GETBLOCKHASHWALLET" ]; then
+		if [ "$GETBLOCKHASHWALLET" != "$GETBLOCKHASHEXPLORER" ]; then
 		  echo "FORK ON $LASTBLOCK !!!!"
 		  break
 		fi
