@@ -47,7 +47,7 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
 	  WALLETVERSION=$(echo $WALLETVERSION | tr 'version : ' " ")
 	  WALLETVERSION=$(echo $WALLETVERSION | tr -d ' ' )
 
-	  if ! [ "$WALLETVERSION" == "5040300" ]; then
+	  if ! [ "$WALLETVERSION" == "5040400" ]; then
 	     echo "!!!Your wallet $DOGECASHNAME is OUTDATED!!!"
 	  fi
 

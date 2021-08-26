@@ -37,9 +37,10 @@ echo -e "6. INSTALL NEW NODES" #  -> DOGECASH_SETUPV1.SH" # OK
 echo -e "7. CHECK NODES STATUS" #  -> DOGECASH_CHECK_STATUS.SH" # OK
 echo -e "8. RESYNC SPECIFIC NODE (useful if node is stopped)" # -> DOGECASH_RESYNC.sh # OK
 echo -e "9. REMOVE SPECIFIC NODE" # -> DOGECASH_REMOVE.sh # OK
-echo -e "10. CALCULATE FREE MEMORY AND CPU FOR NEW NODES" # -> memory_cpu_sysinfo.sh # OK
-echo -e "${YELLOW}11. DOGECASH LOGO${RED}" # DOGECASH LOGO
-echo -e "12. EXIT${NC}" # OK
+echo -e "10. UPDATE NODE WALLET" # -> UPDATE_WALLET.sh # OK
+echo -e "11. CALCULATE FREE MEMORY AND CPU FOR NEW NODES" # -> memory_cpu_sysinfo.sh # OK
+echo -e "${YELLOW}12. DOGECASH LOGO${RED}" # DOGECASH LOGO
+echo -e "0. EXIT${NC}" # OK
 echo "---------------------------------------"
 echo "choose option number:"
 read OPTION
@@ -108,16 +109,21 @@ elif [[ ${OPTION} == "9" ]] ; then
   dos2unix dogecash_remove.sh > /dev/null 2>&1
   /bin/bash ./dogecash_remove.sh $ALIAS
 elif [[ ${OPTION} == "10" ]] ; then
+  wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/update_wallet.sh -O update_wallet.sh > /dev/null 2>&1
+  chmod 777 update_wallet.sh
+  dos2unix update_wallet.sh > /dev/null 2>&1
+  /bin/bash ./update_wallet.sh
+elif [[ ${OPTION} == "11" ]] ; then
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/memory_cpu_sysinfo.sh -O memory_cpu_sysinfo.sh > /dev/null 2>&1
   chmod 777 memory_cpu_sysinfo.sh
   dos2unix memory_cpu_sysinfo.sh > /dev/null 2>&1
   /bin/bash ./memory_cpu_sysinfo.sh
-elif [[ ${OPTION} == "11" ]] ; then
+elif [[ ${OPTION} == "12" ]] ; then
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_logo.sh -O dogecash_logo.sh > /dev/null 2>&1
   chmod 777 dogecash_logo.sh
   dos2unix dogecash_logo.sh > /dev/null 2>&1
   /bin/bash ./dogecash_logo.sh
-elif [[ ${OPTION} == "12" ]] ; then
+elif [[ ${OPTION} == "0" ]] ; then
   exit 0
 elif [[ ${OPTION} == "50" ]] ; then
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_setupv1-f.sh -O dogecash_setupv1-f.sh > /dev/null 2>&1

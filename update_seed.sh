@@ -2,11 +2,11 @@ echo
 echo "DogeCash - Masternode updater"
 echo ""
 echo "Welcome to the DogeCash Masternode update script."
-echo "Wallet v5.4.3"
+echo "Wallet v5.4.4"
 echo
 
 NAME="dogecash"
-WALLETVERSION="5.4.3"
+WALLETVERSION="5.4.4"
 WALLETDLFOLDER="${NAME}-${WALLETVERSION}"
 WALLETDL="${WALLETDLFOLDER}-x86_64-linux-gnu.tar.gz"
 URL="https://github.com/dogecash/dogecash/releases/download/${WALLETVERSION}/${WALLETDL}"
