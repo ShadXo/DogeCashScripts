@@ -449,13 +449,13 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
    fi
 
    if [ -z "$PID" ]; then
-      cd $CONF_DIR_TMP
+      cd $CONF_DIR
       echo "Copy BLOCKCHAIN without conf files"
 	   rm -R ./database &>/dev/null &
 	   rm -R ./blocks	&>/dev/null &
 	   rm -R ./sporks &>/dev/null &
 	   rm -R ./chainstate &>/dev/null &
-      cp $CONF_DIR_TMP/blocks_n_chains.tar.gz .
+      mv $CONF_DIR_TMP/blocks_n_chains.tar.gz .
       #unzip bootstrap.zip
       tar -xvzf blocks_n_chains.tar.gz
       rm ./blocks_n_chains.tar.gz
