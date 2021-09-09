@@ -31,7 +31,7 @@ echo ""
 echo -e "${RED}1. LIST ALL NODES" # -> DOGECASH_LIST.SH" # OK
 echo -e "2. CHECK NODES SYNC" #  -> DOGECASH_CHECK_SYNC.SH" # OK
 echo -e "3. RESYNC NODES THAT ARE OUT OF SYNC" #  -> DOGECASH_CHECK_RESYNC_ALL.SH" # OK
-echo -e "4. START NODES" #  -> DOGECASH_START.SH" # OK
+echo -e "4. (RE-)START NODES" #  -> DOGECASH_RESTART.SH" # OK
 echo -e "5. STOP NODES" #  -> DOGECASH_STOP.SH" # OK
 echo -e "6. INSTALL NEW NODES" #  -> DOGECASH_SETUPV1.SH" # OK
 echo -e "7. CHECK NODES STATUS" #  -> DOGECASH_CHECK_STATUS.SH" # OK
@@ -69,12 +69,12 @@ elif [[ ${OPTION} == "3" ]] ; then
   dos2unix dogecash_check_resync_all.sh > /dev/null 2>&1
   /bin/bash ./dogecash_check_resync_all.sh $ALIAS
 elif [[ ${OPTION} == "4" ]] ; then
-  echo -e "${RED}Which node do you want to start? Enter alias (if empty then will check all)${NC}"
+  echo -e "${RED}Which node do you want to (re-)start? Enter alias (if empty then will check all)${NC}"
   read ALIAS
-  wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_start.sh -O dogecash_start.sh > /dev/null 2>&1
-  chmod 777 dogecash_start.sh
-  dos2unix dogecash_start.sh > /dev/null 2>&1
-  /bin/bash ./dogecash_start.sh $ALIAS
+  wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_restart.sh -O dogecash_restart.sh > /dev/null 2>&1
+  chmod 777 dogecash_restart.sh
+  dos2unix dogecash_restart.sh > /dev/null 2>&1
+  /bin/bash ./dogecash_restart.sh $ALIAS
 elif [[ ${OPTION} == "5" ]] ; then
   echo -e "${RED}Which node do you want to stop? Enter alias (if empty then will check all)${NC}"
   read ALIAS
