@@ -55,28 +55,28 @@ if [[ ${OPTION} == "1" ]] ; then
   dos2unix dogecash_list.sh > /dev/null 2>&1
   /bin/bash ./dogecash_list.sh
 elif [[ ${OPTION} == "2" ]] ; then
-  echo -e "${RED}Which node do you want to check if synced? Enter alias (if empty then will check all)${NC}"
+  echo -e "${RED}Which node do you want to check if synced? Enter alias (if empty it will run on all nodes)${NC}"
   read ALIAS
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_check_sync.sh -O dogecash_check_sync.sh > /dev/null 2>&1
   chmod 777 dogecash_check_sync.sh
   dos2unix dogecash_check_sync.sh > /dev/null 2>&1
   /bin/bash ./dogecash_check_sync.sh $ALIAS
 elif [[ ${OPTION} == "3" ]] ; then
-  echo -e "${RED}Which node do you want to check sync and resync? Enter alias (if empty then will check all)${NC}"
+  echo -e "${RED}Which node do you want to check sync and resync? Enter alias (if empty it will run on all nodes)${NC}"
   read ALIAS
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_check_resync_all.sh -O dogecash_check_resync_all.sh > /dev/null 2>&1
   chmod 777 dogecash_check_resync_all.sh
   dos2unix dogecash_check_resync_all.sh > /dev/null 2>&1
   /bin/bash ./dogecash_check_resync_all.sh $ALIAS
 elif [[ ${OPTION} == "4" ]] ; then
-  echo -e "${RED}Which node do you want to (re-)start? Enter alias (if empty then will check all)${NC}"
+  echo -e "${RED}Which node do you want to (re-)start? Enter alias (if empty it will run on all nodes)${NC}"
   read ALIAS
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_restart.sh -O dogecash_restart.sh > /dev/null 2>&1
   chmod 777 dogecash_restart.sh
   dos2unix dogecash_restart.sh > /dev/null 2>&1
   /bin/bash ./dogecash_restart.sh $ALIAS
 elif [[ ${OPTION} == "5" ]] ; then
-  echo -e "${RED}Which node do you want to stop? Enter alias (if empty then will check all)${NC}"
+  echo -e "${RED}Which node do you want to stop? Enter alias (if empty it will run on all nodes)${NC}"
   read ALIAS
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_stop.sh -O dogecash_stop.sh > /dev/null 2>&1
   chmod 777 dogecash_stop.sh
@@ -88,7 +88,7 @@ elif [[ ${OPTION} == "6" ]] ; then
   dos2unix dogecash_setupv1.sh > /dev/null 2>&1
   /bin/bash ./dogecash_setupv1.sh
 elif [[ ${OPTION} == "7" ]] ; then
-  echo -e "${RED}For which node do you want to check masternode status? Enter alias (if empty then will check all)${NC}"
+  echo -e "${RED}For which node do you want to check masternode status? Enter alias (if empty it will run on all nodes)${NC}"
   read ALIAS
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_check_status.sh -O dogecash_check_status.sh > /dev/null 2>&1
   chmod 777 dogecash_check_status.sh
@@ -131,7 +131,7 @@ elif [[ ${OPTION} == "50" ]] ; then
   dos2unix dogecash_setupv1-f.sh > /dev/null 2>&1
   /bin/bash ./dogecash_setupv1-f.sh
 elif [[ ${OPTION} == "60" ]] ; then
-  echo -e "${RED}For which node do you want to get info? Enter alias (if empty then will get all)${NC}"
+  echo -e "${RED}For which node do you want to get info? Enter alias (if empty it will run on all nodes)${NC}"
   read ALIAS
   wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_info.sh -O dogecash_info.sh > /dev/null 2>&1
   chmod 777 dogecash_info.sh
