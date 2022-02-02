@@ -381,7 +381,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
    mv ${NAME}.conf_TEMP $CONF_DIR/${NAME}.conf
 
    if [ -z "$PRIVKEY" ]; then
-	   PID=`ps -ef | grep -i ${NAME} | grep -i ${ALIASONE}/ | grep -v grep | awk '{print $2}'`
+	   PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIASONE} | grep -v grep | awk '{print $2}'`
 
 	   if [ -z "$PID" ]; then
          # start wallet
@@ -411,7 +411,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
 
 	   for (( ; ; ))
 	   do
-		   PID=`ps -ef | grep -i ${NAME} | grep -i ${ALIAS}/ | grep -v grep | awk '{print $2}'`
+		   PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
 		   if [ -z "$PID" ]; then
 		      echo ""
 		   else
@@ -420,7 +420,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
 		   fi
 		   echo "Please wait ..."
 		   sleep 2 # wait 2 seconds
-		   PID=`ps -ef | grep -i ${NAME} | grep -i ${ALIAS}/ | grep -v grep | awk '{print $2}'`
+		   PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
 		   echo "PID="$PID
 
 		   if [ -z "$PID" ]; then
@@ -438,7 +438,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
    echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf
 
    sleep 2 # wait 2 seconds
-   PID=`ps -ef | grep -i ${NAME} | grep -i ${ALIAS}/ | grep -v grep | awk '{print $2}'`
+   PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
    echo "PID="$PID
 
    if [ -z "$PID" ]; then

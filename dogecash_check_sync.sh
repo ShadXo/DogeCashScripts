@@ -24,7 +24,7 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
   DOGECASHNAME=$(echo $FILE | awk -F'[_.]' '{print $2}')
 
 
-  DOGECASHPID=`ps -ef | grep -i $DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
   echo "DOGECASHPID="$DOGECASHPID
 
   if [ -z "$DOGECASHPID" ]; then

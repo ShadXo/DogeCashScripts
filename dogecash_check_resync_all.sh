@@ -34,7 +34,7 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
   do
     sleep 2
 
-	DOGECASHPID=`ps -ef | grep -i _$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+	DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
 	echo "DOGECASHPID="$DOGECASHPID
 
 	if [ -z "$DOGECASHPID" ]; then
@@ -81,7 +81,7 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
 		fi
 
 		sleep 2 # wait 2 seconds
-		DOGECASHPID=`ps -ef | grep -i _$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+		DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
 		echo "DOGECASHPID="$DOGECASHPID
 
 		if [ -z "$DOGECASHPID" ]; then
@@ -105,7 +105,7 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
 		  $FILE
 		  sleep 3 # wait 3 seconds
 
-		  DOGECASHPID=`ps -ef | grep -i _$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+		  DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
 		  echo "DOGECASHPID="$DOGECASHPID
 
 		  if [ -z "$DOGECASHPID" ]; then

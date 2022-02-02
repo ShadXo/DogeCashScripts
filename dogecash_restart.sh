@@ -14,7 +14,7 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
   echo "FILE "$FILE
   ALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
 
-  DOGECASHPID=`ps -ef | grep -i _$ALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  DOGECASHPID=`ps -ef | grep -i -w dogecash_$ALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
   echo "DOGECASHPID="$DOGECASHPID
 
   if [ "$DOGECASHPID" ]; then
@@ -25,6 +25,6 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
   $FILE
   sleep 3 # wait 3 seconds
 
-  DOGECASHPID=`ps -ef | grep -i _$ALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  DOGECASHPID=`ps -ef | grep -i -w dogecash_$ALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
   echo "DOGECASHPID="$DOGECASHPID
 done
