@@ -9,7 +9,7 @@ else
   PARAM1=${PARAM1,,}
 fi
 
-for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
+for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   echo "*******************************************"
   COUNTER=1
   DATE=$(date '+%d.%m.%Y %H:%M:%S');
@@ -26,6 +26,6 @@ for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
   DOGECASHCONFPATH=$(echo "$HOME/.${NAME}_$DOGECASHNAME")
   # echo $DOGECASHSTARTPOS_1
   # echo ${DOGECASHLENGTH:0:2}
-  echo "NODE ALIAS: "$DOGECASHCONFPATH
+  echo "NODE ALIAS: "$DOGECASHNAME
   echo "CONF FOLDER: "$DOGECASHCONFPATH
 done
