@@ -20,7 +20,7 @@ if [ ! -f ~/bin/${NAME}d_$PARAM1.sh ]; then
 	exit -1
 fi
 
-for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
+for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   echo "****************************************************************************"
   COUNTER=1
   DATE=$(date '+%d.%m.%Y %H:%M:%S');

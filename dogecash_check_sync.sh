@@ -11,7 +11,7 @@ fi
 
 sudo apt-get install -y jq > /dev/null 2>&1
 
-for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
+for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   sleep 2
   echo "****************************************************************************"
   echo FILE: " $FILE"

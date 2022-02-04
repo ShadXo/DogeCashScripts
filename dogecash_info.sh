@@ -9,7 +9,7 @@ else
   PARAM1=${PARAM1,,}
 fi
 
-for FILE in ~/bin/${NAME}-cli_$PARAM1.sh; do
+for FILE in $(ls ~/bin/${NAME}-cli_$PARAM1.sh | sort -V); do
   echo "*******************************************"
   COUNTER=1
   DATE=$(date '+%d.%m.%Y %H:%M:%S');

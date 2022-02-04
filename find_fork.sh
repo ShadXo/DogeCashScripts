@@ -22,7 +22,7 @@ do
 	do
 		echo "Starting from $BLOCK"
 
-		for FILE in ~/bin/${NAME}-cli_$WALLET.sh; do
+		for FILE in $(ls ~/bin/${NAME}-cli_$WALLET.sh | sort -V); do
 			echo $FILE
 			#BLOCKHASHEXPLORER=$(~/bin/${NAME}-cli_$WALLET.sh getblockhash $BLOCK)
 			BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/block/$BLOCK | jq -r ".hash")

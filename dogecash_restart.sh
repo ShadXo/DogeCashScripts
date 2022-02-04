@@ -9,7 +9,7 @@ else
   PARAM1=${PARAM1,,}
 fi
 
-for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
+for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   echo "*******************************************"
   echo "FILE "$FILE
   ALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')

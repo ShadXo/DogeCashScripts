@@ -9,7 +9,7 @@ if [ -z "$PARAM1" ]; then
   exit -1
 fi
 
-for FILE in ~/bin/${NAME}d_$PARAM1.sh; do
+for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   echo "*******************************************"
   echo "FILE "$FILE
   DOGECASHNAME=$(echo $FILE | awk -F'[_.]' '{print $2}')
