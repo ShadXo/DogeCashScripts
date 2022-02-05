@@ -56,17 +56,16 @@ function get_ip() {
     #NODE_IPS+=($(curl --interface $ips --connect-timeout 2 -s6 icanhazip.com))
   done
 
-  if [ ${#NODE_IPS[@]} -gt 1 ]
-    then
-      echo -e "${GREEN}More than one IP. Please type 0 to use the first IP, 1 for the second and so on...${NC}"
-      INDEX=0
-      for ip in "${NODE_IPS[@]}"
-      do
-        echo ${INDEX} $ip
-        let INDEX=${INDEX}+1
-      done
-      read -e choose_ip
-      NODEIP=${NODE_IPS[$choose_ip]}
+  if [ ${#NODE_IPS[@]} -gt 1 ]; then
+    echo -e "${GREEN}More than one IP. Please type 0 to use the first IP, 1 for the second and so on...${NC}"
+    INDEX=0
+    for ip in "${NODE_IPS[@]}"
+    do
+      echo ${INDEX} $ip
+      let INDEX=${INDEX}+1
+    done
+    read -e choose_ip
+    NODEIP=${NODE_IPS[$choose_ip]}
   else
     NODEIP=${NODE_IPS[0]}
   fi
@@ -79,47 +78,47 @@ get_ip
 PUBIPv4=$( timeout --signal=SIGKILL 10s wget -4qO- -T 10 -t 2 -o- "--bind-address=${NODEIP}" http://ipinfo.io/ip )
 PUBIPv6=$( timeout --signal=SIGKILL 10s wget -6qO- -T 10 -t 2 -o- "--bind-address=${NODEIP}" http://v6.ident.me )
 if [[ $NODEIP =~ .*:.* ]]; then
-#INTIP=$(ip -4 addr show dev $ips | grep inet | awk -F '[ \t]+|/' '{print $3}' | head -1)
-#IP=${INTIP}
-IP="[${NODEIP}]"
-EXTERNALIP="[${PUBIPv6}]"
-else
-IP=${NODEIP}
-EXTERNALIP=${PUBIPv4}
+  #INTIP=$(ip -4 addr show dev $ips | grep inet | awk -F '[ \t]+|/' '{print $3}' | head -1)
+  #IP=${INTIP}
+  IP="[${NODEIP}]"
+  EXTERNALIP="[${PUBIPv6}]"
+  else
+  IP=${NODEIP}
+  EXTERNALIP=${PUBIPv4}
 fi
 
 echo -e "${YELLOW}Do you want to install all needed dependencies (no if you did it before, yes if you are installing your first node)? [y/n]${NC}"
 read DOSETUP
 
-if [[ ${DOSETUP,,} =~ "y" ]] ; then
-   sudo apt-get update
-   sudo apt-get -y upgrade
-   sudo apt-get -y dist-upgrade
-   sudo apt-get install -y nano htop git
-   sudo apt-get install -y software-properties-common
-   sudo apt-get install -y build-essential libtool autotools-dev pkg-config libssl-dev
-   sudo apt-get install -y libboost-all-dev
-   sudo apt-get install -y libevent-dev
-   sudo apt-get install -y libminiupnpc-dev
-   sudo apt-get install -y autoconf
-   sudo apt-get install -y automake unzip
-   sudo add-apt-repository -y ppa:luke-jr/bitcoincore
-   sudo apt-get update
-   sudo apt-get install -y libdb4.8-dev libdb4.8++-dev
-   sudo apt-get install -y dos2unix
-   sudo apt-get install -y jq
+if [[ ${DOSETUP,,} =~ "y" ]]; then
+  sudo apt-get update
+  sudo apt-get -y upgrade
+  sudo apt-get -y dist-upgrade
+  sudo apt-get install -y nano htop git
+  sudo apt-get install -y software-properties-common
+  sudo apt-get install -y build-essential libtool autotools-dev pkg-config libssl-dev
+  sudo apt-get install -y libboost-all-dev
+  sudo apt-get install -y libevent-dev
+  sudo apt-get install -y libminiupnpc-dev
+  sudo apt-get install -y autoconf
+  sudo apt-get install -y automake unzip
+  sudo add-apt-repository -y ppa:luke-jr/bitcoincore
+  sudo apt-get update
+  sudo apt-get install -y libdb4.8-dev libdb4.8++-dev
+  sudo apt-get install -y dos2unix
+  sudo apt-get install -y jq
 
-   if [ $(free | awk '/^Swap:/ {exit !$2}') ] || [ ! -f "/var/swap.img" ];then
-       echo "No proper swap, creating it"
-       sudo touch /var/swap.img
-       sudo chmod 600 /var/swap.img
-       sudo dd if=/dev/zero of=/var/swap.img bs=1024k count=2000
-       sudo mkswap /var/swap.img
-       sudo swapon /var/swap.img
-       sudo free
-       sudo echo "/var/swap.img none swap sw 0 0" >> /etc/fstab
+   if [ $(free | awk '/^Swap:/ {exit !$2}') ] || [ ! -f "/var/swap.img" ]; then
+     echo "No proper swap, creating it"
+     sudo touch /var/swap.img
+     sudo chmod 600 /var/swap.img
+     sudo dd if=/dev/zero of=/var/swap.img bs=1024k count=2000
+     sudo mkswap /var/swap.img
+     sudo swapon /var/swap.img
+     sudo free
+     sudo echo "/var/swap.img none swap sw 0 0" >> /etc/fstab
    else
-       echo "All good, we have a swap"
+     echo "All good, we have a swap"
    fi
 
    ## COMPILE AND INSTALL
@@ -166,24 +165,24 @@ COUNTER=1
 MNCOUNT="1"
 #REBOOTRESTART=""
 re='^[0-9]+$'
-while ! [[ $MNCOUNT =~ $re ]] ; do
-   echo -e "${YELLOW}How many nodes do you want to create on this server?, followed by [ENTER]:${NC}"
-   read MNCOUNT
-   #echo -e "${YELLOW}Do you want to use TOR, additional dependencies needed (no if you dont know what this does)? [y/n]${NC}"
-   #read TOR
-   #echo -e "${YELLOW}Do you want the wallet to restart on reboot? [y/n]${NC}"
-   #read REBOOTRESTART
+while ! [[ $MNCOUNT =~ $re ]]; do
+  echo -e "${YELLOW}How many nodes do you want to create on this server?, followed by [ENTER]:${NC}"
+  read MNCOUNT
+  #echo -e "${YELLOW}Do you want to use TOR, additional dependencies needed (no if you dont know what this does)? [y/n]${NC}"
+  #read TOR
+  #echo -e "${YELLOW}Do you want the wallet to restart on reboot? [y/n]${NC}"
+  #read REBOOTRESTART
 done
 
-if [[ ${TOR,,} =~ "y" ]] ; then
+if [[ ${TOR,,} =~ "y" ]]; then
   if (service --status-all | grep -w "tor" &>/dev/null); then
     echo ""
- else
-   sudo apt install -y tor
-   echo -e 'ControlPort 9051\nLongLivedPorts 56740' >> /etc/tor/torrc
-   systemctl stop tor
-   systemctl start tor
- fi
+  else
+    sudo apt install -y tor
+    echo -e 'ControlPort 9051\nLongLivedPorts 56740' >> /etc/tor/torrc
+    systemctl stop tor
+    systemctl start tor
+  fi
 fi
 
 REBOOTRESTART="y"
@@ -192,42 +191,38 @@ REBOOTRESTART="y"
 
 for (( ; ; ))
 do
-   #echo "************************************************************"
-   #echo ""
-   #echo "Enter alias for new node. Name must be unique! (Don't use same names as for previous nodes on old chain if you didn't delete old chain folders!)"
-   echo -e "${YELLOW}Enter alphanumeric alias for new nodes.[default: mn]${NC}"
-   read ALIAS1
+  #echo "************************************************************"
+  #echo ""
+  #echo "Enter alias for new node. Name must be unique! (Don't use same names as for previous nodes on old chain if you didn't delete old chain folders!)"
+  echo -e "${YELLOW}Enter alphanumeric alias for new nodes.[default: mn]${NC}"
+  read ALIAS1
 
-   if [ -z "$ALIAS1" ]; then
-      ALIAS1="mn"
-   fi
+  if [ -z "$ALIAS1" ]; then
+    ALIAS1="mn"
+  fi
 
-   ALIAS1=${ALIAS1,,}
+  ALIAS1=${ALIAS1,,}
 
-   if [[ "$ALIAS1" =~ [^0-9A-Za-z]+ ]] ; then
-      echo -e "${RED}$ALIAS1 has characters which are not alphanumeric. Please use only alphanumeric characters.${NC}"
-   elif [ -z "$ALIAS1" ]; then
-      echo -e "${RED}$ALIAS1 in empty!${NC}"
-   else
-      CONF_DIR=~/.${NAME}_$ALIAS1
-      if [ -d "$CONF_DIR" ]; then
+  if [[ "$ALIAS1" =~ [^0-9A-Za-z]+ ]]; then
+    echo -e "${RED}$ALIAS1 has characters which are not alphanumeric. Please use only alphanumeric characters.${NC}"
+  elif [ -z "$ALIAS1" ]; then
+    echo -e "${RED}$ALIAS1 in empty!${NC}"
+  else
+    CONF_DIR=~/.${NAME}_$ALIAS1
+    if [ -d "$CONF_DIR" ]; then
          echo -e "${RED}$ALIAS1 is already used. $CONF_DIR already exists!${NC}"
-      else
-         # OK !!!
-         break
-      fi
-   fi
+    else
+      # OK !!!
+      break
+    fi
+  fi
 done
 
 if [ -d "$CONF_DIR_TMP" ]; then
-   rm -rfd $CONF_DIR_TMP
+  rm -rfd $CONF_DIR_TMP
 fi
 
 mkdir -p $CONF_DIR_TMP
-cd $CONF_DIR_TMP
-echo "Copy BLOCKCHAIN without conf files"
-wget ${BOOTSTRAPURL} -O blocks_n_chains.tar.gz
-cd ~
 
 for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
    for (( ; ; ))
@@ -242,26 +237,26 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
       echo ""
 
       # check ALIAS
-      if [[ "$ALIAS" =~ [^0-9A-Za-z]+ ]] ; then
-         echo -e "${RED}$ALIAS has characters which are not alphanumeric. Please use only alphanumeric characters.${NC}"
-         EXIT='YES'
-	   elif [ -z "$ALIAS" ]; then
+      if [[ "$ALIAS" =~ [^0-9A-Za-z]+ ]]; then
+        echo -e "${RED}$ALIAS has characters which are not alphanumeric. Please use only alphanumeric characters.${NC}"
+        EXIT='YES'
+	    elif [ -z "$ALIAS" ]; then
 	      echo -e "${RED}$ALIAS in empty!${NC}"
-         EXIT='YES'
+        EXIT='YES'
       else
 	      CONF_DIR=~/.${NAME}_${ALIAS}
-         CONF_DIR0=~/.${NAME}_${ALIAS0}
+        CONF_DIR0=~/.${NAME}_${ALIAS0}
 
-         if [ -d "$CONF_DIR" ]; then
-            echo -e "${RED}$ALIAS is already used. $CONF_DIR already exists!${NC}"
-            STARTNUMBER=$[STARTNUMBER + 1]
-         elif  [ -d "$CONF_DIR0" ]; then
-            echo -e "${RED}$ALIAS is already used. $CONF_DIR0 already exists!${NC}"
-            STARTNUMBER=$[STARTNUMBER + 1]
-         else
-            # OK !!!
-            break
-         fi
+        if [ -d "$CONF_DIR" ]; then
+          echo -e "${RED}$ALIAS is already used. $CONF_DIR already exists!${NC}"
+          STARTNUMBER=$[STARTNUMBER + 1]
+        elif [ -d "$CONF_DIR0" ]; then
+          echo -e "${RED}$ALIAS is already used. $CONF_DIR0 already exists!${NC}"
+          STARTNUMBER=$[STARTNUMBER + 1]
+        else
+          # OK !!!
+          break
+        fi
       fi
    done
 
@@ -273,214 +268,271 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
    IP1=""
    for (( ; ; ))
    do
-      IP1=$(netstat -peanut -W | grep -i listen | grep -i $NODEIP)
+     IP1=$(netstat -peanut -W | grep -i listen | grep -i $NODEIP)
 
-      if [ -z "$IP1" ]; then
+     if [ -z "$IP1" ]; then
+       break
+     else
+       echo -e "${RED}IP: $NODEIP is already used.${NC}"
+       if [[ ${TOR,,} =~ "y" ]] ; then
+         echo "Using TOR"
+         #NODEIP="127.0.0.1"
          break
-      else
-    echo -e "${RED}IP: $NODEIP is already used.${NC}"
-    #echo "IP already used."
-    if [[ ${TOR,,} =~ "y" ]] ; then
-      echo "Using TOR"
-      #NODEIP="127.0.0.1"
-      break
-    fi
-    exit
-    echo "Creating fake IP."
-         BASEIP="1.2.3."
-         IP=$BASEIP$STARTNUMBER
-         cat > /etc/netplan/${NAME}_$ALIAS.yaml <<-EOF
-         # This is the network config written by 'subiquity'
-         network:
-           ethernets:
-             ens160:
-               addresses:
-               - $BASEIP$STARTNUMBER/24
-           version: 2
+       fi
+       exit
+       echo "Creating fake IP."
+       BASEIP="1.2.3."
+       IP=$BASEIP$STARTNUMBER
+       cat > /etc/netplan/${NAME}_$ALIAS.yaml <<-EOF
+       # This is the network config written by 'subiquity'
+       network:
+         ethernets:
+           ens160:
+             addresses:
+             - $BASEIP$STARTNUMBER/24
+         version: 2
 		EOF
-      fi
-      netplan apply
-      break
-   done
-   echo "IP "$IP
-   echo "PORT "$PORT
+    fi
+    netplan apply
+    break
+  done
+  echo "IP "$IP
+  echo "PORT "$PORT
 
-   if ! [[ ${TOR,,} =~ "y" ]] ; then
-   TORPORT=$PORT
-   PORT1=""
-   for (( ; ; ))
-   do
+  if [[ ${TOR,,} =~ "y" ]]; then
+    TORPORT=$PORT
+    PORT1=""
+    for (( ; ; ))
+    do
       PORT1=$(netstat -peanut | grep -i listen | grep -i $TORPORT)
 
       if [ -z "$PORT1" ]; then
-         break
+        break
       else
-         TORPORT=$[TORPORT + 1]
+        TORPORT=$[TORPORT + 1]
       fi
-   done
-   echo "TORPORT "$TORPORT
- fi
+    done
+    echo "TORPORT "$TORPORT
+  fi
 
-   RPCPORT1=""
-   for (( ; ; ))
-   do
-      RPCPORT1=$(netstat -peanut | grep -i listen | grep -i $RPCPORT)
+  RPCPORT1=""
+  for (( ; ; ))
+  do
+    RPCPORT1=$(netstat -peanut | grep -i listen | grep -i $RPCPORT)
+    if [ -z "$RPCPORT1" ]; then
+      echo "RPCPORT "$RPCPORT
+      break
+    else
 
-      if [ -z "$RPCPORT1" ]; then
-         break
+      RPCPORT=$[RPCPORT + 1]
+    fi
+  done
+
+  PRIVKEY=""
+  echo ""
+
+  echo "ALIAS="$ALIAS
+
+  # Create scripts
+  echo '#!/bin/bash' > ~/bin/${NAME}d_$ALIAS.sh
+  echo "${NAME}d -daemon -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR "'$*' >> ~/bin/${NAME}d_$ALIAS.sh
+  echo "${NAME}-cli -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR "'$*' > ~/bin/${NAME}-cli_$ALIAS.sh
+  chmod 755 ~/bin/${NAME}*.sh
+
+  mkdir -p $CONF_DIR
+  echo "rpcuser=user"`shuf -i 100000-10000000 -n 1` >> ${NAME}.conf_TEMP
+  echo "rpcpassword=pass"`shuf -i 100000-10000000 -n 1` >> ${NAME}.conf_TEMP
+  echo "rpcallowip=127.0.0.1" >> ${NAME}.conf_TEMP
+  echo "rpcport=$RPCPORT" >> ${NAME}.conf_TEMP
+  echo "listen=1" >> ${NAME}.conf_TEMP
+  echo "server=1" >> ${NAME}.conf_TEMP
+  echo "daemon=1" >> ${NAME}.conf_TEMP
+  echo "logtimestamps=1" >> ${NAME}.conf_TEMP
+  echo "maxconnections=256" >> ${NAME}.conf_TEMP
+
+  echo "" >> ${NAME}.conf_TEMP
+  #echo "port=$PORT" >> ${NAME}.conf_TEMP
+  echo "masternodeaddr=$EXTERNALIP:$PORT" >> ${NAME}.conf_TEMP
+  #echo "bind=$IP:$PORT" >> ${NAME}.conf_TEMP
+  if ! [[ ${TOR,,} =~ "y" ]] ; then
+    echo "bind=$IP:$PORT" >> ${NAME}.conf_TEMP
+  else
+    echo "bind=$IP:$TORPORT" >> ${NAME}.conf_TEMP
+    echo "proxy=127.0.0.1:9050" >> ${NAME}.conf_TEMP
+    echo "torcontrol=127.0.0.1:9051" >> ${NAME}.conf_TEMP
+  fi
+  if [ -z "$PRIVKEY" ]; then
+    echo ""
+  else
+    echo "masternode=1" >> ${NAME}.conf_TEMP
+    echo "masternodeprivkey=$PRIVKEY" >> ${NAME}.conf_TEMP
+  fi
+
+  sudo ufw allow $PORT/tcp
+  mv ${NAME}.conf_TEMP $CONF_DIR/${NAME}.conf
+
+  if [[ ${TOR,,} =~ "y" ]]; then
+    union=$(grep "tor: Got service ID" ~/.${NAME}_${ALIAS}/debug.log | sed -e 's/\(^.*advertising service \)\(.*\)\(:.*$\)/\2/' | head -n 1)
+    sudo sed -i "s/masternodeaddr=$EXTERNALIP/masternodeaddr=$union/g" $CONF_DIR/${NAME}.conf
+  fi
+
+  PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
+  if [ -z "$PID" ]; then
+    # start wallet
+    echo "Starting $ALIAS."
+    sh ~/bin/${NAME}d_$ALIAS.sh
+    sleep 2 # wait 2 second
+  fi
+
+  if [ -z "$PRIVKEY" ]; then
+    echo "Generating masternode key on $ALIAS"
+	  for (( ; ; ))
+	  do
+      PRIVKEY=$(~/bin/${NAME}-cli_${ALIAS}.sh createmasternodekey)
+      if [ -z "$PRIVKEY" ]; then
+        echo "PRIVKEY is null"
       else
-         RPCPORT=$[RPCPORT + 1]
+        echo "PRIVKEY=$PRIVKEY"
+        break
       fi
-   done
-   echo "RPCPORT "$RPCPORT
+      echo "Please wait ..."
+      sleep 2 # wait 2 seconds
+    done
+  fi
 
-   PRIVKEY=""
-   echo ""
+  for (( ; ; ))
+	do
+		PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
+		if [ -z "$PID" ]; then
+		  echo ""
+      break
+    else
+		  #STOP
+      echo "Stopping $ALIAS. Please wait ..."
+	    ~/bin/${NAME}-cli_$ALIAS.sh stop
+    fi
+	  #echo "Please wait ..."
+	  sleep 2 # wait 2 seconds
+  done
 
-   if [[ "$COUNTER" -lt 2 ]]; then
-      ALIASONE=$(echo $ALIAS)
-   fi
-   echo "ALIASONE="$ALIASONE
+	#PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
+	#echo "PID="$PID
 
-   # Create scripts
-   echo '#!/bin/bash' > ~/bin/${NAME}d_$ALIAS.sh
-   echo "${NAME}d -daemon -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR "'$*' >> ~/bin/${NAME}d_$ALIAS.sh
-   echo "${NAME}-cli -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR "'$*' > ~/bin/${NAME}-cli_$ALIAS.sh
-   chmod 755 ~/bin/${NAME}*.sh
+	if [ -z "$PID" ]; then
+    echo "masternode=1" >> $CONF_DIR/${NAME}.conf
+    echo "masternodeprivkey=$PRIVKEY" >> $CONF_DIR/${NAME}.conf
+  fi
 
-   mkdir -p $CONF_DIR
-   echo "rpcuser=user"`shuf -i 100000-10000000 -n 1` >> ${NAME}.conf_TEMP
-   echo "rpcpassword=pass"`shuf -i 100000-10000000 -n 1` >> ${NAME}.conf_TEMP
-   echo "rpcallowip=127.0.0.1" >> ${NAME}.conf_TEMP
-   echo "rpcport=$RPCPORT" >> ${NAME}.conf_TEMP
-   echo "listen=1" >> ${NAME}.conf_TEMP
-   echo "server=1" >> ${NAME}.conf_TEMP
-   echo "daemon=1" >> ${NAME}.conf_TEMP
-   echo "logtimestamps=1" >> ${NAME}.conf_TEMP
-   echo "maxconnections=256" >> ${NAME}.conf_TEMP
+  if [ -z "$PID" ]; then
+    ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf )
+    sed -i '/addnode\=/d' $CONF_DIR/${NAME}.conf
+    sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
+    echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf
+  fi
 
-   echo "" >> ${NAME}.conf_TEMP
-   #echo "port=$PORT" >> ${NAME}.conf_TEMP
-   echo "masternodeaddr=$EXTERNALIP:$PORT" >> ${NAME}.conf_TEMP
-   #echo "bind=$IP:$PORT" >> ${NAME}.conf_TEMP
-   if ! [[ ${TOR,,} =~ "y" ]] ; then
-      echo "bind=$IP:$PORT" >> ${NAME}.conf_TEMP
-   else
-      echo "bind=$IP:$TORPORT" >> ${NAME}.conf_TEMP
-      echo "proxy=127.0.0.1:9050" >> ${NAME}.conf_TEMP
-      echo "torcontrol=127.0.0.1:9051" >> ${NAME}.conf_TEMP
-   fi
-   if [ -z "$PRIVKEY" ]; then
-      echo ""
-   else
-      echo "masternode=1" >> ${NAME}.conf_TEMP
-      echo "masternodeprivkey=$PRIVKEY" >> ${NAME}.conf_TEMP
-   fi
+  if [ -z "$PID" ]; then
+    PARAM1="*"
+    for FILE in $(ls ~/bin/${NAME}-cli_$PARAM1.sh | sort -V); do
+      DOGECASHNAME=$(echo $FILE | awk -F'[_.]' '{print $2}')
+      DOGECASHCONFPATH=$(echo "$HOME/.${NAME}_$DOGECASHNAME")
+      if [ "$DOGECASHNAME" != "$ALIAS" ]; then
+        echo "Checking ${DOGECASHNAME}."
+        #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/height/$BLOCK | jq -r ".result.hash")
+        #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
+        #BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/block/$BLOCK | jq -r ".hash")
+        BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
+        LASTBLOCK=$($FILE getblockcount)
+        BLOCKHASHWALLET=$($FILE getblockhash $LASTBLOCK)
+      fi
+      if [ "$BLOCKHASHEXPLORER" == "$BLOCKHASHWALLET" ]; then
+        echo "*******************************************"
+        echo "Using the following node to sync faster."
+        echo "NODE ALIAS: "$DOGECASHNAME
+        echo "CONF FOLDER: "$DOGECASHCONFPATH
+        break
+      else
+        DOGECASHNAME=""
+      fi
+    done
 
-   sudo ufw allow $PORT/tcp
-   mv ${NAME}.conf_TEMP $CONF_DIR/${NAME}.conf
+    for (( ; ; ))
+    do
+      DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+      if [ -z "$DOGECASHPID" ]; then
+        echo ""
+        break
+      else
+        #STOP
+        echo "Stopping $DOGECASHNAME. Please wait ..."
+        ~/bin/${NAME}-cli_$DOGECASHNAME.sh stop
+      fi
+      #echo "Please wait ..."
+      sleep 2 # wait 2 seconds
+    done
 
-   if [ -z "$PRIVKEY" ]; then
-	   PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIASONE} | grep -v grep | awk '{print $2}'`
-
-	   if [ -z "$PID" ]; then
-         # start wallet
-         sh ~/bin/${NAME}d_$ALIASONE.sh
-	      sleep 1 # wait 1 second
-	   fi
-
-	   if [[ ${TOR,,} =~ "y" ]] ; then
-       union=$(grep "tor: Got service ID" ~/.${NAME}_${ALIASONE}/debug.log | sed -e 's/\(^.*advertising service \)\(.*\)\(:.*$\)/\2/' | head -n 1)
-       sudo sed -i "s/masternodeaddr=$EXTERNALIP/masternodeaddr=$union/g" $CONF_DIR/${NAME}.conf
-     fi
-
-	   for (( ; ; ))
-	   do
-	      echo "Please wait ..."
-         sleep 2 # wait 2 seconds
-	      PRIVKEY=$(~/bin/${NAME}-cli_${ALIASONE}.sh createmasternodekey)
-	      echo "PRIVKEY=$PRIVKEY"
-	      if [ -z "$PRIVKEY" ]; then
-	         echo "PRIVKEY is null"
-	      else
-	         break
-         fi
-	   done
-
-	   sleep 1 # wait 1 second
-
-	   for (( ; ; ))
-	   do
-		   PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
-		   if [ -z "$PID" ]; then
-		      echo ""
-		   else
-		      #STOP
-		      ~/bin/${NAME}-cli_$ALIAS.sh stop
-		   fi
-		   echo "Please wait ..."
-		   sleep 2 # wait 2 seconds
-		   PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
-		   echo "PID="$PID
-
-		   if [ -z "$PID" ]; then
-		      sleep 1 # wait 1 second
-		      echo "masternode=1" >> $CONF_DIR/${NAME}.conf
-		      echo "masternodeprivkey=$PRIVKEY" >> $CONF_DIR/${NAME}.conf
-		      break
-	      fi
-	   done
-   fi
-
-   ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf )
-   sed -i '/addnode\=/d' $CONF_DIR/${NAME}.conf
-   sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
-   echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf
-
-   sleep 2 # wait 2 seconds
-   PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
-   echo "PID="$PID
-
-   if [ -z "$PID" ]; then
-      echo ""
-   else
-      ~/bin/${NAME}-cli_$ALIAS.sh stop
-	   sleep 2 # wait 2 seconds
-   fi
-
-   if [ -z "$PID" ]; then
+    if [ -z "$PID" ] && [ "$DOGECASHNAME" ]; then
+      # Copy this Daemon.
+      echo "Copy BLOCKCHAIN from ~/.dogecash_${DOGECASHNAME} to ~/.dogecash_${ALIAS}."
+      rm -R $CONF_DIR/database &> /dev/null
+      rm -R $CONF_DIR/blocks	&> /dev/null
+      rm -R $CONF_DIR/sporks &> /dev/null
+      rm -R $CONF_DIR/chainstate &> /dev/null
+      cp -r $DOGECASHCONFPATH/database $CONF_DIR &> /dev/null
+      cp -r $DOGECASHCONFPATH/blocks $CONF_DIR &> /dev/null
+      cp -r $DOGECASHCONFPATH/sporks $CONF_DIR &> /dev/null
+      cp -r $DOGECASHCONFPATH/chainstate $CONF_DIR &> /dev/null
+    elif [ -z "$PID" ]; then
+      cd $CONF_DIR_TMP
+      echo "Downloading bootstrap"
+      wget ${BOOTSTRAPURL} -O blocks_n_chains.tar.gz
+      cd ~
       cd $CONF_DIR
       echo "Copy BLOCKCHAIN without conf files"
-	   rm -R ./database &>/dev/null &
-	   rm -R ./blocks	&>/dev/null &
-	   rm -R ./sporks &>/dev/null &
-	   rm -R ./chainstate &>/dev/null &
+	    rm -R ./database &> /dev/null
+	    rm -R ./blocks	&> /dev/null
+	    rm -R ./sporks &> /dev/null
+	    rm -R ./chainstate &> /dev/null
       mv $CONF_DIR_TMP/blocks_n_chains.tar.gz .
       #unzip bootstrap.zip
       tar -xvzf blocks_n_chains.tar.gz
       rm ./blocks_n_chains.tar.gz
-      sh ~/bin/${NAME}d_$ALIAS.sh
-      sleep 2 # wait 2 seconds
-   fi
+    fi
+  fi
 
-   if [[ $NODEIP =~ .*:.* ]]; then
-   MNCONFIG=$(echo $ALIAS [$PUBIPv6]:$PORT $PRIVKEY "txhash" "outputidx")
-   else
-   MNCONFIG=$(echo $ALIAS $PUBIPv4:$PORT $PRIVKEY "txhash" "outputidx")
-   fi
-   echo $MNCONFIG >> ~/bin/masternode_config.txt
+  DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  if [ -z "$DOGECASHPID" ] && [ "$DOGECASHNAME" ]; then
+    # start wallet
+    echo "Starting $DOGECASHNAME."
+    sh ~/bin/${NAME}d_$DOGECASHNAME.sh
+    sleep 2 # wait 2 seconds
+  fi
 
-   if [[ ${REBOOTRESTART,,} =~ "y" ]] ; then
-      (crontab -l 2>/dev/null; echo "@reboot sh ~/bin/${NAME}d_$ALIAS.sh") | crontab -
-	   (crontab -l 2>/dev/null; echo "@reboot sh /root/bin/${NAME}d_$ALIAS.sh") | crontab -
-	   sudo service cron reload
-   fi
+  PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
+  if [ -z "$PID" ]; then
+    # start wallet
+    echo "Starting $ALIAS."
+    sh ~/bin/${NAME}d_$ALIAS.sh
+    sleep 2 # wait 2 second
+  fi
 
-   COUNTER=$[COUNTER + 1]
+  if [[ $NODEIP =~ .*:.* ]]; then
+    MNCONFIG=$(echo $ALIAS [$PUBIPv6]:$PORT $PRIVKEY "txhash" "outputidx")
+  else
+    MNCONFIG=$(echo $ALIAS $PUBIPv4:$PORT $PRIVKEY "txhash" "outputidx")
+  fi
+  echo $MNCONFIG >> ~/bin/masternode_config.txt
+
+  if [[ ${REBOOTRESTART,,} =~ "y" ]] ; then
+    (crontab -l 2>/dev/null; echo "@reboot sh ~/bin/${NAME}d_$ALIAS.sh") | crontab -
+	  (crontab -l 2>/dev/null; echo "@reboot sh /root/bin/${NAME}d_$ALIAS.sh") | crontab -
+	  sudo service cron reload
+  fi
+
+  COUNTER=$[COUNTER + 1]
 done
 
 if [ -d "$CONF_DIR_TMP" ]; then
-   rm -rfd $CONF_DIR_TMP
+  rm -rfd $CONF_DIR_TMP
 fi
 
 echo ""
