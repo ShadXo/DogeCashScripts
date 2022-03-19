@@ -23,6 +23,7 @@ do
 		echo "Starting from $BLOCK"
 
 		for FILE in $(ls ~/bin/${NAME}-cli_$WALLET.sh | sort -V); do
+      echo "*******************************************"
 			echo $FILE
 			#BLOCKHASHEXPLORER=$(~/bin/${NAME}-cli_$WALLET.sh getblockhash $BLOCK)
 			BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/block/$BLOCK | jq -r ".hash")
@@ -30,24 +31,16 @@ do
 			BLOCKHASHWALLET=$($FILE getblockhash $BLOCK)
 
 			if [ -z "$BLOCKHASHEXPLORER" ]; then
-			  break
+			  break 2
 			fi
 
 			if [ -z "$BLOCKHASHWALLET" ]; then
-			  break
+			  break 2
 			fi
 
 			echo "BLOCKHASHEXPLORER=$BLOCKHASHEXPLORER"
 			echo "BLOCKHASHWALLET=$BLOCKHASHWALLET"
 		done
-
-		if [ -z "$BLOCKHASHEXPLORER" ]; then
-		 break
-		fi
-
-		if [ -z "$BLOCKHASHWALLET" ]; then
-		  break
-		fi
 
 		if [ "$BLOCKHASHWALLET" != "$BLOCKHASHEXPLORER" ]; then
 		  echo "FORK ON $BLOCK !!!!"
