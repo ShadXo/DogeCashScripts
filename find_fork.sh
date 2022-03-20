@@ -24,7 +24,7 @@ do
 
 		for FILE in $(ls ~/bin/${NAME}-cli_$WALLET.sh | sort -V); do
       echo "*******************************************"
-			echo $FILE
+			echo "FILE: $FILE"
 			#BLOCKHASHEXPLORER=$(~/bin/${NAME}-cli_$WALLET.sh getblockhash $BLOCK)
 			BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/block/$BLOCK | jq -r ".hash")
 			#BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/height/$BLOCK | jq -r ".result.hash")

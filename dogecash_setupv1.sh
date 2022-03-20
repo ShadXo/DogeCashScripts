@@ -376,7 +376,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
     sudo sed -i "s/masternodeaddr=$EXTERNALIP/masternodeaddr=$union/g" $CONF_DIR/${NAME}.conf
   fi
 
-  PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
+  PID=`ps -ef | grep -i ${NAME} | grep -i -w ${NAME}_${ALIAS} | grep -v grep | awk '{print $2}'`
   if [ -z "$PID" ]; then
     # start wallet
     echo "Starting $ALIAS."
@@ -402,7 +402,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
 
   for (( ; ; ))
 	do
-		PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
+		PID=`ps -ef | grep -i ${NAME} | grep -i -w ${NAME}_${ALIAS} | grep -v grep | awk '{print $2}'`
 		if [ -z "$PID" ]; then
 		  echo ""
       break
@@ -415,7 +415,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
 	  sleep 2 # wait 2 seconds
   done
 
-	#PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
+	#PID=`ps -ef | grep -i ${NAME} | grep -i -w ${NAME}_${ALIAS} | grep -v grep | awk '{print $2}'`
 	#echo "PID="$PID
 
 	if [ -z "$PID" ]; then
@@ -433,10 +433,10 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
   if [ -z "$PID" ]; then
     PARAM1="*"
     for FILE in $(ls ~/bin/${NAME}-cli_$PARAM1.sh | sort -V); do
-      DOGECASHNAME=$(echo $FILE | awk -F'[_.]' '{print $2}')
-      DOGECASHCONFPATH=$(echo "$HOME/.${NAME}_$DOGECASHNAME")
-      if [ "$DOGECASHNAME" != "$ALIAS" ]; then
-        echo "Checking ${DOGECASHNAME}."
+      SYNCNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+      SYNCNODECONFPATH=$(echo "$HOME/.${NAME}_$SYNCNODEALIAS")
+      if [ "$SYNCNODEALIAS" != "$ALIAS" ]; then
+        echo "Checking ${SYNCNODEALIAS}."
         #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/height/$BLOCK | jq -r ".result.hash")
         #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
         #BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/block/$BLOCK | jq -r ".hash")
@@ -447,40 +447,40 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
       if [ "$BLOCKHASHEXPLORER" == "$BLOCKHASHWALLET" ]; then
         echo "*******************************************"
         echo "Using the following node to sync faster."
-        echo "NODE ALIAS: "$DOGECASHNAME
-        echo "CONF FOLDER: "$DOGECASHCONFPATH
+        echo "NODE ALIAS: "$SYNCNODEALIAS
+        echo "CONF FOLDER: "$SYNCNODECONFPATH
         break
       else
-        DOGECASHNAME=""
+        SYNCNODEALIAS=""
       fi
     done
 
     for (( ; ; ))
     do
-      DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-      if [ -z "$DOGECASHPID" ]; then
+      SYNCNODEPID=`ps -ef | grep -i -w ${NAME}_$SYNCNODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+      if [ -z "$SYNCNODEPID" ]; then
         echo ""
         break
       else
         #STOP
-        echo "Stopping $DOGECASHNAME. Please wait ..."
-        ~/bin/${NAME}-cli_$DOGECASHNAME.sh stop
+        echo "Stopping $SYNCNODEALIAS. Please wait ..."
+        ~/bin/${NAME}-cli_$SYNCNODEALIAS.sh stop
       fi
       #echo "Please wait ..."
       sleep 2 # wait 2 seconds
     done
 
-    if [ -z "$PID" ] && [ "$DOGECASHNAME" ]; then
+    if [ -z "$PID" ] && [ "$SYNCNODEALIAS" ]; then
       # Copy this Daemon.
-      echo "Copy BLOCKCHAIN from ~/.dogecash_${DOGECASHNAME} to ~/.dogecash_${ALIAS}."
+      echo "Copy BLOCKCHAIN from ~/.${NAME}_${SYNCNODEALIAS} to ~/.${NAME}_${ALIAS}."
       rm -R $CONF_DIR/database &> /dev/null
       rm -R $CONF_DIR/blocks	&> /dev/null
       rm -R $CONF_DIR/sporks &> /dev/null
       rm -R $CONF_DIR/chainstate &> /dev/null
-      cp -r $DOGECASHCONFPATH/database $CONF_DIR &> /dev/null
-      cp -r $DOGECASHCONFPATH/blocks $CONF_DIR &> /dev/null
-      cp -r $DOGECASHCONFPATH/sporks $CONF_DIR &> /dev/null
-      cp -r $DOGECASHCONFPATH/chainstate $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFPATH/database $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFPATH/blocks $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFPATH/sporks $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFPATH/chainstate $CONF_DIR &> /dev/null
     elif [ -z "$PID" ]; then
       cd $CONF_DIR_TMP
       echo "Downloading bootstrap"
@@ -499,15 +499,15 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
     fi
   fi
 
-  DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-  if [ -z "$DOGECASHPID" ] && [ "$DOGECASHNAME" ]; then
+  SYNCNODEPID=`ps -ef | grep -i -w ${NAME}_$SYNCNODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  if [ -z "$SYNCNODEPID" ] && [ "$SYNCNODEALIAS" ]; then
     # start wallet
-    echo "Starting $DOGECASHNAME."
-    sh ~/bin/${NAME}d_$DOGECASHNAME.sh
+    echo "Starting $SYNCNODEALIAS."
+    sh ~/bin/${NAME}d_$SYNCNODEALIAS.sh
     sleep 2 # wait 2 seconds
   fi
 
-  PID=`ps -ef | grep -i ${NAME} | grep -i -w dogecash_${ALIAS} | grep -v grep | awk '{print $2}'`
+  PID=`ps -ef | grep -i ${NAME} | grep -i -w ${NAME}_${ALIAS} | grep -v grep | awk '{print $2}'`
   if [ -z "$PID" ]; then
     # start wallet
     echo "Starting $ALIAS."

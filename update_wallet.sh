@@ -13,8 +13,8 @@ URL="https://github.com/dogecash/dogecash/releases/download/${WALLETVERSION}/${W
 CONF_DIR_TMP=~/"${NAME}_tmp"
 
 
-for filename in ~/bin/${NAME}-cli*.sh; do
-  sh $filename stop
+for FILE in ~/bin/${NAME}-cli*.sh; do
+  sh $FILE stop
   sleep 1
 done
 
@@ -41,9 +41,9 @@ sudo mv ./share/dogecash/*.params ~/.dogecash-params
 cd ~
 rm -rfd $CONF_DIR_TMP
 
-for filename in ~/bin/${NAME}d*.sh; do
-  echo $filename
-  sh $filename
+for FILE in ~/bin/${NAME}d*.sh; do
+  echo "FILE: $FILE"
+  sh $FILE
   sleep 1
 done
 

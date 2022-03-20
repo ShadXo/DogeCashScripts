@@ -11,20 +11,20 @@ fi
 
 for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   echo "*******************************************"
-  echo "FILE "$FILE
-  ALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+  echo "FILE: $FILE"
+  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
 
-  DOGECASHPID=`ps -ef | grep -i -w dogecash_$ALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-  echo "DOGECASHPID="$DOGECASHPID
+  NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  echo "NODEPID="$NODEPID
 
-  if [ "$DOGECASHPID" ]; then
-  ~/bin/${NAME}-cli_$ALIAS.sh stop
+  if [ "$NODEPID" ]; then
+  ~/bin/${NAME}-cli_$NODEALIAS.sh stop
   sleep 2 # wait 2 seconds
   fi
 
   $FILE
   sleep 3 # wait 3 seconds
 
-  DOGECASHPID=`ps -ef | grep -i -w dogecash_$ALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-  echo "DOGECASHPID="$DOGECASHPID
+  NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  echo "NODEPID="$NODEPID
 done

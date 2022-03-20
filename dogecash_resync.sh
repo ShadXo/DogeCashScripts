@@ -24,22 +24,22 @@ for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   echo "****************************************************************************"
   COUNTER=1
   DATE=$(date '+%d.%m.%Y %H:%M:%S');
-  echo "DATE="$DATE
-  echo FILE: " $FILE"
-  DOGECASHSTARTPOS=$(echo $FILE | grep -b -o _)
-  DOGECASHLENGTH=$(echo $FILE | grep -b -o .sh)./mon
-  # echo ${DOGECASHSTARTPOS:0:2}
-  #DOGECASHSTARTPOS_1=$(echo ${DOGECASHSTARTPOS:0:2})
-  #DOGECASHSTARTPOS_1=$[DOGECASHSTARTPOS_1 + 1]
-  #DOGECASHNAME=$(echo ${FILE:DOGECASHSTARTPOS_1:${DOGECASHLENGTH:0:2}-DOGECASHSTARTPOS_1})
-  DOGECASHNAME=$(echo $FILE | awk -F'[_.]' '{print $2}')
-  DOGECASHCONFPATH=$(echo "$HOME/.${NAME}_$DOGECASHNAME")
-  # echo $DOGECASHSTARTPOS_1
-  # echo ${DOGECASHLENGTH:0:2}
-  echo CONF DIR: $DOGECASHCONFPATH
+  echo "DATE: $DATE"
+  echo "FILE: $FILE"
+  #ALIASSTARTPOS=$(echo $FILE | grep -b -o _)
+  #ALIASLENGTH=$(echo $FILE | grep -b -o .sh)./mon
+  # echo ${ALIASSTARTPOS:0:2}
+  #ALIASSTARTPOS_1=$(echo ${ALIASSTARTPOS:0:2})
+  #ALIASSTARTPOS_1=$[ALIASSTARTPOS_1 + 1]
+  #NODEALIAS=$(echo ${FILE:ALIASSTARTPOS_1:${ALIASLENGTH:0:2}-ALIASSTARTPOS_1})
+  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+  NODECONFPATH=$(echo "$HOME/.${NAME}_$NODEALIAS")
+  # echo $ALIASSTARTPOS_1
+  # echo ${ALIASLENGTH:0:2}
+  echo CONF DIR: $NODECONFPATH
 
-  if [ ! -d $DOGECASHCONFPATH ]; then
-	echo "Directory $DOGECASHCONFPATH not found!"
+  if [ ! -d $NODECONFPATH ]; then
+	echo "Directory $NODECONFPATH not found!"
 	exit -1
   fi
 
@@ -47,61 +47,61 @@ for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   do
     sleep 2
 
-	DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-	echo "DOGECASHPID="$DOGECASHPID
+	NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+	echo "NODEPID="$NODEPID
 
-	if [ -z "$DOGECASHPID" ]; then
-	  echo "DogeCash $DOGECASHNAME is STOPPED can't check if synced!"
+	if [ -z "$NODEPID" ]; then
+	  echo "Node $NODEALIAS is STOPPED can't check if synced!"
 	fi
 
-	LASTBLOCK=$(~/bin/${NAME}-cli_$DOGECASHNAME.sh getblockcount)
-	GETBLOCKHASH=$(~/bin/${NAME}-cli_$DOGECASHNAME.sh getblockhash $LASTBLOCK)
+	LASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
+	GETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $LASTBLOCK)
 
 	echo "LASTBLOCK="$LASTBLOCK
 	echo "GETBLOCKHASH="$GETBLOCKHASH
 
-  #BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
-  BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
-  #BLOCKHASHCOINEXPLORERDOGECASH=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
+  #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
+  BLOCKHASHCOINEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
+  #BLOCKHASHCOINEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
 
 	echo "LASTBLOCK="$LASTBLOCK
 	echo "GETBLOCKHASH="$GETBLOCKHASH
-	echo "BLOCKHASHCOINEXPLORERDOGECASH="$BLOCKHASHCOINEXPLORERDOGECASH
+	echo "BLOCKHASHCOINEXPLORER="$BLOCKHASHCOINEXPLORER
 
 
 	echo "GETBLOCKHASH="$GETBLOCKHASH
-	echo "BLOCKHASHCOINEXPLORERDOGECASH="$BLOCKHASHCOINEXPLORERDOGECASH
+	echo "BLOCKHASHCOINEXPLORER="$BLOCKHASHCOINEXPLORER
 
-	if [ "$BLOCKHASHCOINEXPLORERDOGECASH" == "Too" ]; then
-	   echo "COINEXPLORERDOGECASH Too many requests"
+	if [ "$BLOCKHASHCOINEXPLORER" == "Too" ]; then
+	   echo "COINEXPLORER Too many requests"
 	   break
 	fi
 
 	# Wallet is not synced
-	echo $DATE" Wallet $DOGECASHNAME is NOT SYNCED!"
+	echo $DATE" Wallet $NODEALIAS is NOT SYNCED!"
 	#
 	# echo $LASTBLOCKCOINEXPLORERDOGECASH
 	#break
 
-	if [ -z "$DOGECASHPID" ]; then
+	if [ -z "$NODEPID" ]; then
 	   echo ""
 	else
 		#STOP
-		~/bin/${NAME}-cli_$DOGECASHNAME.sh stop
+		~/bin/${NAME}-cli_$NODEALIAS.sh stop
 
 		if [[ "$COUNTER" -gt 1 ]]; then
-		  kill -9 $DOGECASHPID
+		  kill -9 $NODEPID
 		fi
 	fi
 
 	sleep 2 # wait 2 seconds
-	DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-	echo "DOGECASHPID="$DOGECASHPID
+	NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+	echo "NODEPID="$NODEPID
 
-	if [ -z "$DOGECASHPID" ]; then
-	  echo "DOGECASH $DOGECASHNAME is STOPPED"
+	if [ -z "$NODEPID" ]; then
+	  echo "Node $NODEALIAS is STOPPED"
 
-	  cd $DOGECASHCONFPATH
+	  cd $NODECONFPATH
 	  echo CURRENT CONF FOLDER: $PWD
 	  echo "Copy BLOCKCHAIN without conf files"
 	  # wget http://blockchain.DOGECASHey.vision/ -O bootstrap.zip
@@ -119,16 +119,16 @@ for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
 	  $FILE
 	  sleep 3 # wait 3 seconds
 
-	  DOGECASHPID=`ps -ef | grep -i -w dogecash_$DOGECASHNAME | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-	  echo "DOGECASHPID="$DOGECASHPID
+	  NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+	  echo "NODEPID="$NODEPID
 
-	  if [ -z "$DOGECASHPID" ]; then
-		echo "DogeCash $DOGECASHNAME still not running!"
+	  if [ -z "$NODEPID" ]; then
+		echo "Node $NODEALIAS still not running!"
 	  fi
 
 	  break
 	else
-	  echo "DogeCash $DOGECASHNAME still running!"
+	  echo "Node $NODEALIAS still running!"
 	fi
 
 	COUNTER=$[COUNTER + 1]

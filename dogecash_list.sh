@@ -13,19 +13,19 @@ for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   echo "*******************************************"
   COUNTER=1
   DATE=$(date '+%d.%m.%Y %H:%M:%S');
-  echo "DATE="$DATE
-  echo "FILE: "$FILE
+  echo "DATE: $DATE"
+  echo "FILE: $FILE"
   #cat $FILE
-  DOGECASHSTARTPOS=$(echo $FILE | grep -b -o _)
-  DOGECASHLENGTH=$(echo $FILE | grep -b -o .sh)
-  # echo ${DOGECASHSTARTPOS:0:2}
-  #DOGECASHSTARTPOS_1=$(echo ${DOGECASHSTARTPOS:0:2})
-  #DOGECASHSTARTPOS_1=$[DOGECASHSTARTPOS_1 + 1]
-  #DOGECASHNAME=$(echo ${FILE:DOGECASHSTARTPOS_1:${DOGECASHLENGTH:0:2}-DOGECASHSTARTPOS_1})
-  DOGECASHNAME=$(echo $FILE | awk -F'[_.]' '{print $2}')
-  DOGECASHCONFPATH=$(echo "$HOME/.${NAME}_$DOGECASHNAME")
-  # echo $DOGECASHSTARTPOS_1
-  # echo ${DOGECASHLENGTH:0:2}
-  echo "NODE ALIAS: "$DOGECASHNAME
-  echo "CONF FOLDER: "$DOGECASHCONFPATH
+  #ALIASSTARTPOS=$(echo $FILE | grep -b -o _)
+  #ALIASLENGTH=$(echo $FILE | grep -b -o .sh)
+  # echo ${ALIASSTARTPOS:0:2}
+  #ALIASSTARTPOS_1=$(echo ${ALIASSTARTPOS:0:2})
+  #ALIASSTARTPOS_1=$[ALIASSTARTPOS_1 + 1]
+  #NODEALIAS=$(echo ${FILE:ALIASSTARTPOS_1:${ALIASLENGTH:0:2}-ALIASSTARTPOS_1})
+  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+  NODECONFPATH=$(echo "$HOME/.${NAME}_$NODEALIAS")
+  # echo $ALIASSTARTPOS_1
+  # echo ${ALIASLENGTH:0:2}
+  echo "NODE ALIAS: "$NODEALIAS
+  echo "CONF FOLDER: "$NODECONFPATH
 done

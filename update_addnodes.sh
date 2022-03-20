@@ -12,16 +12,16 @@ fi
 
 for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   echo "*******************************************"
-  echo "FILE "$FILE
-  ALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+  echo "FILE: $FILE"
+  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
 
-  ~/bin/${NAME}-cli_$ALIAS.sh stop
+  ~/bin/${NAME}-cli_$NODEALIAS.sh stop
   sleep 2 # wait 2 seconds
 
   ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf )
-  sed -i '/addnode\=/d' ~/.dogecash_$ALIAS/${NAME}.conf
-  sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' ~/.dogecash_$ALIAS/${NAME}.conf # Remove empty lines at the end
-  echo "${ADDNODES}" | tr " " "\\n" >> ~/.dogecash_$ALIAS/${NAME}.conf
+  sed -i '/addnode\=/d' ~/.${NAME}_$NODEALIAS/${NAME}.conf
+  sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' ~/.${NAME}_$NODEALIAS/${NAME}.conf # Remove empty lines at the end
+  echo "${ADDNODES}" | tr " " "\\n" >> ~/.${NAME}_$NODEALIAS/${NAME}.conf
 
-  ~/bin/${NAME}d_$ALIAS.sh
+  ~/bin/${NAME}d_$NODEALIAS.sh
 done

@@ -13,20 +13,20 @@ for FILE in $(ls ~/bin/${NAME}-cli_$PARAM1.sh | sort -V); do
   echo "*******************************************"
   COUNTER=1
   DATE=$(date '+%d.%m.%Y %H:%M:%S');
-  echo "DATE="$DATE
-  echo "FILE: "$FILE
+  echo "DATE: $DATE"
+  echo "FILE: $FILE"
   #cat $FILE
-  DOGECASHNAME=$(echo $FILE | awk -F'[_.]' '{print $2}')
-  DOGECASHCONFPATH=$(echo "$HOME/.${NAME}_$DOGECASHNAME")
-  DOGECASHMNADDR=$(grep "masternodeaddr=" ~/.${NAME}_$DOGECASHNAME/${NAME}.conf | sed -e 's/\(^.*masternodeaddr=\)\(.*\)/\2/')
-  DOGECASHMNBIND=$(grep "bind=" ~/.${NAME}_$DOGECASHNAME/${NAME}.conf | sed -e 's/\(^.*bind=\)\(.*\)/\2/')
-  DOGECASHPRIVKEY=$(grep "masternodeprivkey=" ~/.${NAME}_$DOGECASHNAME/${NAME}.conf | sed -e 's/\(^.*masternodeprivkey=\)\(.*\)/\2/')
-  #echo $DOGECASHNAME $DOGECASHMNADDR $DOGECASHPRIVKEY "txhash" "outputidx"
+  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+  NODECONFPATH=$(echo "$HOME/.${NAME}_$NODEALIAS")
+  NODEMNADDR=$(grep "masternodeaddr=" ~/.${NAME}_$NODEALIAS/${NAME}.conf | sed -e 's/\(^.*masternodeaddr=\)\(.*\)/\2/')
+  NODEMNBIND=$(grep "bind=" ~/.${NAME}_$NODEALIAS/${NAME}.conf | sed -e 's/\(^.*bind=\)\(.*\)/\2/')
+  NODEPRIVKEY=$(grep "masternodeprivkey=" ~/.${NAME}_$NODEALIAS/${NAME}.conf | sed -e 's/\(^.*masternodeprivkey=\)\(.*\)/\2/')
+  #echo $NODEALIAS $NODEMNADDR $NODEPRIVKEY "txhash" "outputidx"
 
-  #echo "NODE ALIAS: "$DOGECASHNAME
-  echo "CONF FOLDER: "$DOGECASHCONFPATH
-  echo "NODE ADDRESS: "$DOGECASHMNADDR
-  echo "NODE BIND: "$DOGECASHMNBIND
-  echo "NODE PRIVKEY: "$DOGECASHPRIVKEY
+  #echo "NODE ALIAS: "$NODEALIAS
+  echo "CONF FOLDER: "$NODECONFPATH
+  echo "NODE ADDRESS: "$NODEMNADDR
+  echo "NODE BIND: "$NODEMNBIND
+  echo "NODE PRIVKEY: "$NODEPRIVKEY
   $FILE getinfo
 done

@@ -11,6 +11,6 @@ fi
 
 for FILE in $(ls ~/bin/${NAME}-cli_$PARAM1.sh | sort -V); do
   echo "*******************************************"
-  echo "FILE "$FILE
+  echo "FILE: $FILE"
   $FILE getmasternodestatus
 done

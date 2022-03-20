@@ -11,12 +11,12 @@ fi
 
 for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   echo "*******************************************"
-  echo "FILE "$FILE
-  DOGECASHNAME=$(echo $FILE | awk -F'[_.]' '{print $2}')
-  DOGECASHCONFPATH=$(echo "$HOME/.${NAME}_$DOGECASHNAME")
-  echo CONF DIR: $DOGECASHCONFPATH
+  echo "FILE: $FILE"
+  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+  NODECONFPATH=$(echo "$HOME/.${NAME}_$NODEALIAS")
+  echo CONF DIR: $NODECONFPATH
 
-  echo "Node $DOGECASHNAME will be deleted when this timer reaches 0"
+  echo "Node $NODEALIAS will be deleted when this timer reaches 0"
   seconds=10
   date1=$(( $(date -u +%s) + seconds));
   echo "Press ctrl-c to stop"
@@ -25,16 +25,16 @@ for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
     echo -ne "$(date -u --date @$(( date1 - $(date -u +%s) )) +%H:%M:%S)\r";
   done
 
-  ~/bin/${NAME}-cli_$DOGECASHNAME.sh stop
+  ~/bin/${NAME}-cli_$NODEALIAS.sh stop
   sleep 2 # wait 2 seconds
   echo "Removing conf folder"
-  rm -rdf $DOGECASHCONFPATH
+  rm -rdf $NODECONFPATH
   echo "Removing other node files"
-  rm ~/bin/${NAME}-cli_$DOGECASHNAME.sh
-  rm ~/bin/${NAME}d_$DOGECASHNAME.sh
+  rm ~/bin/${NAME}-cli_$NODEALIAS.sh
+  rm ~/bin/${NAME}d_$NODEALIAS.sh
   echo "Removing cron jobs"
-  crontab -l | grep -v "@reboot sh ~/bin/${NAME}d_$DOGECASHNAME.sh" | crontab -
-  crontab -l | grep -v "@reboot sh /root/bin/${NAME}d_$DOGECASHNAME.sh" | crontab -
+  crontab -l | grep -v "@reboot sh ~/bin/${NAME}d_$NODEALIAS.sh" | crontab -
+  crontab -l | grep -v "@reboot sh /root/bin/${NAME}d_$NODEALIAS.sh" | crontab -
   sudo service cron reload
-  echo "Node $DOGECASHNAME removed"
+  echo "Node $NODEALIAS removed"
 done
