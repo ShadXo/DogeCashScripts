@@ -3,7 +3,7 @@
 NAME="dogecash"
 PARAM1=$*
 
-sudo apt-get install -y jq > /dev/null 2>&1
+sudo apt-get install -y jq curl > /dev/null 2>&1
 
 if [ -z "$PARAM1" ]; then
   PARAM1="*"

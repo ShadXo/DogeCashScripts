@@ -106,7 +106,7 @@ if [[ ${DOSETUP,,} =~ "y" ]]; then
   sudo apt-get update
   sudo apt-get install -y libdb4.8-dev libdb4.8++-dev
   sudo apt-get install -y dos2unix
-  sudo apt-get install -y jq
+  sudo apt-get install -y jq curl
 
    if [ $(free | awk '/^Swap:/ {exit !$2}') ] || [ ! -f "/var/swap.img" ]; then
      echo "No proper swap, creating it"

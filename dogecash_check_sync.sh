@@ -9,7 +9,7 @@ else
   PARAM1=${PARAM1,,}
 fi
 
-sudo apt-get install -y jq > /dev/null 2>&1
+sudo apt-get install -y jq curl > /dev/null 2>&1
 
 for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   sleep 2
