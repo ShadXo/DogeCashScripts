@@ -1,33 +1,43 @@
 
 cat<<'EOF'
 
-%%%%%%%%#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%///////#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%///////(%%%%%%%%
-%%%%%%%%//......*///%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#///, ....//#%%%%%%%
-%%%%%%%%//.........////%%%%%%%%%%##%%%%%%%%%%#(#%%%%%%%%%(/// ........ /#%%%%%%%
-%%%%%%%%//...........,/////////////////////////////////////............/#%%%%%%%
-%%%%%%%%//................**/////////////////////////(................ /#%%%%%%%
-%%%%%%%%///.............(*/////////////////////////////((.............//%%%%%%%%
-%%%%%%%%#///........ (((///////(////////////////((///////((/........,///%%%%%%%%
-%%%%%%%%%//////,. #(((////////((((////////////((((////////*(((,..//////#%%%%%%%%
-%%%%%%%%%%/////(((((///////((((((((((//////*((((((((((///////((((*////(%%%%%%%%%
-%%%%%%%%%%%//(((((///////((///(((((((((///(((((((((///((//////((((((/#%%%%%%%%%%
-%%%%%%%%%%%%((((/////////( //  ,(((((((((((((((((   & */////////(((((%%%%%%%%%%%
-%%%%%%%%%%%#((////////&%%%%  .  ((((((((#(((((((   . .%#%%*///////(((%%%%%%%%%%%
-%%%%%%%%%%%((((((((*&%%%&%%%%%%%(((((((##((((((((%%%%%%&%%%&#/(((((((%%%%%%%%%%%
-%%%%%%%%%%%(((((&&&&%%%%%&&%#%%((((((((###(((((((#%%%&&&%%%%&&&&&((((#%%%%%%%%%%
-%%%%%%%%%%%(((#&&&&%%%%%&&&&@#(((@@@@&%###&@@@@%((##&&&&%%%%%&&&&&((((%%%%%%%%%%
-%%%%%%%%%%#((%&&&&%%%%%%&&&&&&&&&&&&@@(#((&&&&&&&&@&&&&&&%%%%%&&&&&(((%%%%%%%%%%
-%%%%%%%%%%#(#&&&&%%%%%%%&&&&&&&&&&/....  .....@&&&&&&&&&&%%%%%%&&&&&((%%%%%%%%%%
-%%%%%%%%%%#((&&&&%%%%%%%&&&&&&&&&&.          .*&&&&&&&&&%%%%%%%%&&&&((%%%%%%%%%%
-%%%%%%%%%%%%(&&&%%%%%%%%%&&&&&&&&&&          %&&&&&&&&&%%%%%%%%%%&&%#%%%%%%%%%%%
-%%%%%%%%%%%%%%&%%%%%%%%%&&&&&&&&&&,***.   ,***@&&&&&&&&&&%%%%%%%%%&%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%&&&&&& .&&&.***      .***@&&@ &&&&&&&%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%&&&&&&&&&%&/   /(((((((((((   .&&&&&&&&&&&%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%&&&&&&&&&&&&&&&@#((((((/&&&&&&&&&&&&&&&&%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%&&&&&&&&&%/////(&//////&&&&&&&&&&%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%&%//////////////////////(&%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#(///////////////#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&#BGGPPPPPPPPPPGGB#&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@&&BGPPP55PPPPPPPPPPPPPPPP55PPPGB&&@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@&#GP555PPPPPPPPPPPPPPPPPPPPPPPPPPPP555PG#&@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@&BP55PPPPPPPPPPPPP55YYJJJJYY55PPPPPPPPPPPPP55PB&@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@#P55PPPPPPPPP5J7~:..            ..:~7J5PPPPPPPPP55P#@@@@@@@@@@@@@@
+@@@@@@@@@@@&BP5PPPPPPPP5?~.                          .~?5PPPPPPPP5PB&@@@@@@@@@@@
+@@@@@@@@@&B55PPPPPPP57:                                  :75PPPPPPP55B&@@@@@@@@@
+@@@@@@@@BP5PPPPPPPJ:                                        :JPPPPPPP5PB@@@@@@@@
+@@@@@@&P5PPPPPPP?.            ..:::::.                        .?PPPPPPP5P&@@@@@@
+@@@@@#5PPPPPPPY:         :!?Y5PPPPPPPP5Y7.                      :YPPPPPPP5#@@@@@
+@@@@B5PPPPPPP!       .~J5PPPPPPPPPPPPPPPPPJ:                      !PPPPPPP5B@@@@
+@@@B5PPPPPP5:      :?PPPPPPPPPPPPPPPPPPPPPPPJ:                     ^PPPPPPP5B@@@
+@@#5PPPPPP5.     .JPPPPPPPPPPPPPPPPPPPPPPPPPPP?:                    !PPPPPPP5#@@
+@&PPPPPPPP:     ~PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP555555555555555555?  5PPPPPPPP&@
+@G5PPPPPP~     7PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP. Y5PPPPPP5G@
+&PPPPPPPY     !PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP~  5!YPPPPPPP&
+BPPPPPPP~    .PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP!  .P:~PPPPPPPB
+GPPPPPPP.    7PPPPPPPPPPPPPPPPP5PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP5^   75 .PPPPPPPG
+PPPPPPPP     JPPPPPPPPPPPPPPP575PPPPPPPPPPPPPPPPPPPPPPPPPPPPPP7.   :G~  PPPPPPPP
+PPPPPPPP.    JPPPPPPPPPPPPPPJ^JPPPPPPPPPPPPPPPPPPPPPPPPPPPPY!.    :P?   PPPPPPPP
+GPPPPPPP^    ~GPPPPPPPPPPPY^.JPPPPPPPPPPPPPPPPPPPPPPPPP5?~.      ~P?   .PPPPPPPG
+BPPPPPPPY     ?PPPPPPPP5?: ^5PPPPPPPPPPY!77777777!!~^:.        .YP~    ~PPPPPPPB
+&PPPPPPPPJ.    :7JYY?!:  :JPPPPPPPPPPP5.                     :JPJ.     YPPPPPPP&
+@G5PPPPPPP5~.         .~YPPPPPPPPPPPPP^                   :75P?.      ~PPPPPP5G@
+@&PPPPPPPPPPPJ7~^^~!?YPPPPPPPPPPPPPPP7              ..^7J5PJ^        :PPPPPPPP&@
+@@#5PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP5       ~YYYYY55P5Y?~:          .5PPPPPP5#@@
+@@@B5PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP:      .PG?^^^:..              :5PPPPPP5B@@@
+@@@@B5PPPPPPPPPPPPPPPPPPPPPPPPPPPPP!       YPY                    ~PPPPPPP5B@@@@
+@@@@@#5PPPPPPPPPPPPPPPPPPPPPPPPPPPY       !PP.                  .JPPPPPPP5#@@@@@
+@@@@@@&P5PPPPPPPPPPPPPPPPPPPPPPPP5.      :PP~                 .?PPPPPPP5P&@@@@@@
+@@@@@@@@BP5PPPPPPPPPPPPPPPPPPPPPP57777??J5P?                :JPPPPPPP5PB@@@@@@@@
+@@@@@@@@@&B55PPPPPPPPPPPPPPPPPPPPPPPPPPPPP5.             :75PPPPPPP55B&@@@@@@@@@
+@@@@@@@@@@@&BP5PPPPPPPPPPPPPPPPPPPPPPPPPPP^          .~?5PPPPPPPP5PB&@@@@@@@@@@@
+@@@@@@@@@@@@@@#P55PPPPPPPPPPPPPPPPPPPPPPP7    ..:~7J5PPPPPPPPP55P#@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@&BP55PPPPPPPPPPPPPPPPPPPPYJY55PPPPPPPPPPPPP55PB&@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@&#GP555PPPPPPPPPPPPPPPPPPPPPPPPPPPP555PG#&@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@&&BGPPP55PPPPPPPPPPPPPPPP55PPPGB&&@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&&#BGGPPPPPPPPPPGGB#&&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 EOF
