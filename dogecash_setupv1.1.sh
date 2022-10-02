@@ -379,40 +379,34 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
   fi
 
   if [[ ${REBOOTRESTART,,} =~ "y" ]] ; then
-    (crontab -l 2>/dev/null; echo "@reboot sh ~/bin/${NAME}d_$ALIAS.sh") | crontab -
-    (crontab -l 2>/dev/null; echo "@reboot sh /root/bin/${NAME}d_$ALIAS.sh") | crontab -
-    sudo service cron reload
-    : <<'END'
     #DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}d_$ALIAS.service"
     #if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
     #fi
     echo "Creating systemd service for ${NAME}d_$ALIAS"
-    function configure_systemd {
-  cat << EOF > /etc/systemd/system/${NAME}d_$ALIAS.service
-[Unit]
-Description=DogeCash Service for $ALIAS
-After=network.target
-[Service]
-User=root
-Group=root
-Type=forking
-ExecStart=${NAME}d -daemon -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR
-ExecStop=-${NAME}-cli -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR stop
-Restart=always
-PrivateTmp=true
-TimeoutStopSec=60s
-TimeoutStartSec=10s
-StartLimitInterval=120s
-StartLimitBurst=5
-[Install]
-WantedBy=multi-user.target
+    cat << EOF > /etc/systemd/system/${NAME}d_$ALIAS.service
+    [Unit]
+    Description=DogeCash Service for $ALIAS
+    After=network.target
+    [Service]
+    User=root
+    Group=root
+    Type=forking
+    ExecStart=${NAME}d -daemon -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR
+    ExecStop=-${NAME}-cli -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR stop
+    Restart=always
+    PrivateTmp=true
+    TimeoutStopSec=60s
+    TimeoutStartSec=10s
+    StartLimitInterval=120s
+    StartLimitBurst=5
+    [Install]
+    WantedBy=multi-user.target
 EOF
   systemctl daemon-reload
   sleep 2
-  systemctl enable ${NAME}d_$ALIAS.service
-  systemctl start ${NAME}d_$ALIAS.service
-}
-END
+  #systemctl enable ${NAME}d_$ALIAS.service
+  #systemctl start ${NAME}d_$ALIAS.service
+  #systemctl enable --now ${NAME}d_$ALIAS.service
   fi
 
   PID=`ps -ef | grep -i ${NAME} | grep -i -w ${NAME}_${ALIAS} | grep -v grep | awk '{print $2}'`
@@ -562,6 +556,8 @@ END
     MNCONFIG=$(echo $ALIAS $PUBIPv4:$PORT $PRIVKEY "txhash" "outputidx")
   fi
   echo $MNCONFIG >> ~/bin/masternode_config.txt
+
+
 
   COUNTER=$[COUNTER + 1]
 done

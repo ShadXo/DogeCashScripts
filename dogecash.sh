@@ -130,6 +130,11 @@ elif [[ ${OPTION} == "50" ]] ; then
   chmod 777 dogecash_setupv1-f.sh
   dos2unix dogecash_setupv1-f.sh > /dev/null 2>&1
   /bin/bash ./dogecash_setupv1-f.sh
+elif [[ ${OPTION} == "51" ]] ; then
+  wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_setupv1.1.sh -O dogecash_setupv1.1.sh > /dev/null 2>&1
+  chmod 777 dogecash_setupv1.1.sh
+  dos2unix dogecash_setupv1.1.sh > /dev/null 2>&1
+  /bin/bash ./dogecash_setupv1.1.sh
 elif [[ ${OPTION} == "60" ]] ; then
   echo -e "${RED}For which node do you want to get info? Enter alias (if empty it will run on all nodes)${NC}"
   read ALIAS
