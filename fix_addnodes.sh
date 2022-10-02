@@ -21,7 +21,7 @@ for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
 
   #ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf )
   ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
-  sed -i '/addnode\=/d' ~/.${NAME}_$NODEALIAS/${NAME}.conf
+  sed -i '/addnode\=/d' ~/.${NAME}_$NODEALIAS/${NAME}.conf # Remove addnode lines from config
   sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' ~/.${NAME}_$NODEALIAS/${NAME}.conf # Remove empty lines at the end
   #echo "${ADDNODES}" | tr " " "\\n" >> ~/.${NAME}_$NODEALIAS/${NAME}.conf
   echo "${ADDNODES}" | sed "s/^/addnode=/g" >> ~/.${NAME}_$NODEALIAS/${NAME}.conf

@@ -19,7 +19,8 @@ URL="https://github.com/dogecash/dogecash/releases/download/${WALLETVERSION}/${W
 CONF_FILE="${NAME}.conf"
 CONF_DIR_TMP=~/"${NAME}_tmp"
 BOOTSTRAPURL="https://www.dropbox.com/s/s4vy92sczk9c10s/blocks_n_chains.tar.gz"
-ADDNODESURL="https://www.dropbox.com/s/s0pdil1rehsy4fu/peers.txt?dl=1"
+#ADDNODESURL="https://www.dropbox.com/s/s0pdil1rehsy4fu/peers.txt?dl=1"
+ADDNODESURL="https://api.dogecash.org/api/v1/network/peers"
 PORT=56740
 RPCPORT=57740
 
@@ -424,10 +425,12 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
   fi
 
   if [ -z "$PID" ]; then
-    ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf )
+    #ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf ) # If using Dropbox link
+    ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
     sed -i '/addnode\=/d' $CONF_DIR/${NAME}.conf
     sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
-    echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf
+    #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
+    echo "${ADDNODES}" | sed "s/^/addnode=/g" >> ~/.${NAME}_$NODEALIAS/${NAME}.conf
   fi
 
   if [ -z "$PID" ]; then
