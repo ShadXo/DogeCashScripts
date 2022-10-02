@@ -39,6 +39,8 @@ echo -e "8. RESYNC SPECIFIC NODE (useful if node is stopped)" # -> DOGECASH_RESY
 echo -e "9. REMOVE SPECIFIC NODE" # -> DOGECASH_REMOVE.sh # OK
 echo -e "10. UPDATE NODE WALLET" # -> UPDATE_WALLET.sh # OK
 echo -e "11. CALCULATE FREE MEMORY AND CPU FOR NEW NODES" # -> memory_cpu_sysinfo.sh # OK
+echo -e "60. NODE INFO (DO NOT SHARE WITHOUT REMOVING PRIVATE INFO)" # -> dogecash_info.sh # OK
+echo -e "70. FORK FINDER" # -> find_fork.sh # OK
 echo -e "${YELLOW}12. DOGECASH LOGO${RED}" # DOGECASH LOGO
 echo -e "0. EXIT${NC}" # OK
 echo "---------------------------------------"
