@@ -140,6 +140,7 @@ if [[ ${DOSETUP,,} =~ "y" ]]; then
    cd ./${WALLETDLFOLDER}
    sudo chmod 775 *
    sudo mv ./bin/${NAME}* /usr/bin
+   #sudo mv ./bin/${NAME}* /usr/local/bin # previous /usr/bin should be /usr/local/bin
    sudo mv ./share/dogecash/*.params ~/.dogecash-params
 
    #read
@@ -468,7 +469,8 @@ END
     sed -i '/addnode\=/d' $CONF_DIR/${NAME}.conf
     sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
     #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
-    echo "${ADDNODES}" | sed "s/^/addnode=/g" >> ~/.${NAME}_$NODEALIAS/${NAME}.conf
+    echo "${ADDNODES}" | sed "s/^/addnode=/g" >> ~/.${NAME}_$ALIAS/${NAME}.conf
+    sed -i '/addnode=localhost:56740/d' ~/.${NAME}_$ALIAS/${NAME}.conf # Remove addnode=localhost:56740 line from config, api is giving localhost back as a peer
   fi
 
   if [ -z "$PID" ]; then
