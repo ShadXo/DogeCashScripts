@@ -58,17 +58,17 @@ RPCPORT=57740
 NOTNEEDED
 
 # GET CONFIGURATION
-declare -r SCRIPTPATH=$( cd $(dirname ${BASH_SOURCE[0]}) > /dev/null; pwd -P )
+#declare -r SCRIPTPATH=$( cd $(dirname ${BASH_SOURCE[0]}) > /dev/null; pwd -P )
 #SETUP_CONF_FILE="${SCRIPTPATH}/coins/${NAME}/${NAME}.env"
 SETUP_CONF_FILE="./coins/${NAME}/${NAME}.env"
-if [ `wget --spider -q https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env` ]; then
+#if [ `wget --spider -q https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env` ]; then
 mkdir -p ./coins/${NAME}
 wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env -O $SETUP_CONF_FILE > /dev/null 2>&1
 chmod 777 $SETUP_CONF_FILE &> /dev/null
 #dos2unix $SETUP_CONF_FILE > /dev/null 2>&1
-fi
+#fi
 
-if [ -f ${SETUP_CONF_FILE} ]; then
+if [ -f ${SETUP_CONF_FILE} ] && [ -s ${SETUP_CONF_FILE} ]; then
   echo "Using setup env file: ${SETUP_CONF_FILE}"
   source "${SETUP_CONF_FILE}"
 else
@@ -553,11 +553,17 @@ EOF
 
   if [ -z "$PID" ] && [ "$ADDNODESURL" ]; then
     if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
-      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
-    else
+      echo "Not tried it yet"
+    elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
       #ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf ) # If using Dropbox link
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
+    elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
+      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
+    else
+      echo "Unknown coin explorer, we will continue without addnodes."
     fi
+  fi
+
     sed -i '/addnode=/d' $CONF_DIR/${NAME}.conf
     sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
     #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
@@ -574,13 +580,28 @@ EOF
       CHECKNODECONFPATH=$(echo "$HOME/.${NAME}_$CHECKNODEALIAS")
       if [ "$CHECKNODEALIAS" != "$ALIAS" ]; then
         echo "Checking ${CHECKNODEALIAS}."
-        #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/height/$BLOCK | jq -r ".result.hash")
-        #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
-        #BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/block/$BLOCK | jq -r ".hash")
-        BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
+        if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
+          #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
+          #BLOCKHASHCOINEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
+          #BLOCKHASHCOINEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
+          #LATESTWALLETVERSION=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.version")
+          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.bestBlockHash")
+          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.version")
+        elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
+          #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.trittium.net/coreapi/v1/coins/MONK/blocks | jq -r ".response[0].blockhash")
+          #LATESTWALLETVERSION=$(curl -s4 https://https://explorer.decenomy.net/coreapi/v1/coins/DOGECASH?expand=overview | jq -r ".response.versions.wallet")
+          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
+          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
+        elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
+          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
+          EXPLORERWALLETVERSION=0 # Can't get this yet from https://api2.dogecash.org
+        else
+          echo "Unknown coin explorer, we can't compare blockhash or walletversion."
+        fi
+
         LASTBLOCK=$($FILE getblockcount)
-        BLOCKHASHWALLET=$($FILE getblockhash $LASTBLOCK)
-        if [ "$BLOCKHASHEXPLORER" == "$BLOCKHASHWALLET" ]; then
+        WALLETBLOCKHASH=$($FILE getblockhash $LASTBLOCK)
+        if [ "$EXPLORERBLOCKHASH" == "$WALLETBLOCKHASH" ]; then
           SYNCNODEALIAS=$CHECKNODEALIAS
           SYNCNODECONFPATH=$CHECKNODECONFPATH
           echo "*******************************************"

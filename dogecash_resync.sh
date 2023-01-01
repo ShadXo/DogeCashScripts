@@ -49,10 +49,30 @@ if [ -z "$ALIAS" ]; then
   exit -1
 fi
 
+# GET CONFIGURATION
+#declare -r SCRIPTPATH=$( cd $(dirname ${BASH_SOURCE[0]}) > /dev/null; pwd -P )
+#SETUP_CONF_FILE="${SCRIPTPATH}/coins/${NAME}/${NAME}.env"
+SETUP_CONF_FILE="./coins/${NAME}/${NAME}.env"
+#if [ `wget --spider -q https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env` ]; then
+mkdir -p ./coins/${NAME}
+wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env -O $SETUP_CONF_FILE > /dev/null 2>&1
+chmod 777 $SETUP_CONF_FILE &> /dev/null
+#dos2unix $SETUP_CONF_FILE > /dev/null 2>&1
+#fi
+
+if [ -f ${SETUP_CONF_FILE} ] && [ -s ${SETUP_CONF_FILE} ]; then
+  echo "Using setup env file: ${SETUP_CONF_FILE}"
+  source "${SETUP_CONF_FILE}"
+else
+  echo "No setup env file found, create one at the following location: ./coins/${NAME}/${NAME}.env"
+  exit 1
+fi
+
 if [ ! -f ~/bin/${NAME}d_$ALIAS.sh ]; then
     echo "Wallet $ALIAS not found!"
 	exit -1
 fi
+
 
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "****************************************************************************"
@@ -89,44 +109,58 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 	fi
 
 	LASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
-	GETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $LASTBLOCK)
+	WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $LASTBLOCK)
 
-	echo "LASTBLOCK="$LASTBLOCK
-	echo "GETBLOCKHASH="$GETBLOCKHASH
+  if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
+    #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
+    #BLOCKHASHCOINEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
+    #BLOCKHASHCOINEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
+    #LATESTWALLETVERSION=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.version")
+    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.bestBlockHash")
+    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.version")
+  elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
+    #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.trittium.net/coreapi/v1/coins/MONK/blocks | jq -r ".response[0].blockhash")
+    #LATESTWALLETVERSION=$(curl -s4 https://https://explorer.decenomy.net/coreapi/v1/coins/DOGECASH?expand=overview | jq -r ".response.versions.wallet")
+    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
+    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
+  elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
+    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
+    EXPLORERWALLETVERSION=0 # Can't get this yet from https://api2.dogecash.org
+  else
+    echo "Unknown coin explorer, we can't compare blockhash or walletversion."
+  fi
 
-  #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
-  BLOCKHASHCOINEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
-  #BLOCKHASHCOINEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
+  echo "LASTBLOCK="$LASTBLOCK
+  echo "WALLETBLOCKHASH="$WALLETBLOCKHASH
+  echo "EXPLORERBLOCKHASH="$EXPLORERBLOCKHASH
 
-	echo "LASTBLOCK="$LASTBLOCK
-	echo "GETBLOCKHASH="$GETBLOCKHASH
-	echo "BLOCKHASHCOINEXPLORER="$BLOCKHASHCOINEXPLORER
+  if [ "$WALLETBLOCKHASH" == "$EXPLORERBLOCKHASH" ]; then
+    echo "Wallet $NODEALIAS is SYNCED!"
+  elif [ "$BLOCKHASHCOINEXPLORER" == "Too" ]; then
+    echo "COINEXPLORER Too many requests"
+  else
+    echo "Wallet $NODEALIAS is NOT SYNCED!"
+  fi
 
+  for (( ; ; ))
+  do
+    NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+    if [ -z "$NODEPID" ]; then
+      echo ""
+      break
+    else
+      #STOP
+      echo "Stopping $NODEALIAS. Please wait ..."
+      ~/bin/${NAME}-cli_$NODEALIAS.sh stop
+      #systemctl stop ${NAME}d_$NODEALIAS.service
+    fi
+    #echo "Please wait ..."
+    sleep 2 # wait 2 seconds
+  done
 
-	echo "GETBLOCKHASH="$GETBLOCKHASH
-	echo "BLOCKHASHCOINEXPLORER="$BLOCKHASHCOINEXPLORER
-
-	if [ "$BLOCKHASHCOINEXPLORER" == "Too" ]; then
-	   echo "COINEXPLORER Too many requests"
-	   break
-	fi
-
-	# Wallet is not synced
-	echo $DATE" Wallet $NODEALIAS is NOT SYNCED!"
-	#
-	# echo $LASTBLOCKCOINEXPLORERDOGECASH
-	#break
-
-	if [ -z "$NODEPID" ]; then
-	   echo ""
-	else
-		#STOP
-		~/bin/${NAME}-cli_$NODEALIAS.sh stop
-
-		if [[ "$COUNTER" -gt 1 ]]; then
-		  kill -9 $NODEPID
-		fi
-	fi
+  if [[ "$COUNTER" -gt 1 ]]; then
+    kill -9 $NODEPID
+  fi
 
 	sleep 2 # wait 2 seconds
 	NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
@@ -134,31 +168,50 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 
 	if [ -z "$NODEPID" ]; then
 	  echo "Node $NODEALIAS is STOPPED"
+    # Create Temp folder
+    mkdir -p $CONF_DIR_TMP
+    cd $CONF_DIR_TMP
 
-	  cd $NODECONFPATH
-	  echo CURRENT CONF FOLDER: $PWD
-	  echo "Copy BLOCKCHAIN without conf files"
-	  # wget http://blockchain.DOGECASHey.vision/ -O bootstrap.zip
-	  # wget http://107.191.46.178/DOGECASH/bootstrap/bootstrap.zip -O bootstrap.zip
-	  # wget http://194.135.84.214/DOGECASH/bootstrap/bootstrap.zip -O bootstrap.zip
-	  # wget http://167.86.97.235/DOGECASH/bootstrap/bootstrap.zip -O bootstrap.zip
-    wget https://www.dropbox.com/s/s4vy92sczk9c10s/blocks_n_chains.tar.gz -O blocks_n_chains.tar.gz
-	  # rm -R peers.dat
-	  rm -R ./database
-	  rm -R ./blocks
-	  rm -R ./sporks
-	  rm -R ./chainstate
-	  #unzip  bootstrap.zip
-    tar -xvzf blocks_n_chains.tar.gz
-	  $FILE
-	  sleep 3 # wait 3 seconds
+    echo "Downloading bootstrap"
+    if [[ $BOOTSTRAPURL == *.tar.gz ]]; then
+      wget ${BOOTSTRAPURL} -O bootstrap.tar.gz
+      WGET=$?
+    elif [[ $BOOTSTRAPURL == *.zip ]]; then
+      wget ${BOOTSTRAPURL} -O bootstrap.zip
+      WGET=$?
+    fi
 
-	  NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-	  echo "NODEPID="$NODEPID
+    if [ $WGET -eq 0 ]; then
+      echo "Downloading bootstrap successful"
+      #cd ~
+      cd $NODECONFPATH
+      echo "Copying BLOCKCHAIN from bootstrap without conf files"
+      rm -R ./database &> /dev/null
+      rm -R ./blocks	&> /dev/null
+      rm -R ./sporks &> /dev/null
+      rm -R ./chainstate &> /dev/null
 
-	  if [ -z "$NODEPID" ]; then
-		echo "Node $NODEALIAS still not running!"
-	  fi
+      if [[ $BOOTSTRAPURL == *.tar.gz ]]; then
+        #mv $CONF_DIR_TMP/blocks_n_chains.tar.gz .
+        #tar -xvzf blocks_n_chains.tar.gz
+        tar -xvzf $CONF_DIR_TMP/bootstrap.tar.gz -C $CONF_DIR --exclude="*.conf"
+        #rm ./blocks_n_chains.tar.gz
+      elif [[ $BOOTSTRAPURL == *.zip ]]; then
+        #mv $CONF_DIR_TMP/bootstrap.zip .
+        #unzip bootstrap.zip
+        unzip $CONF_DIR_TMP/bootstrap.zip -d $CONF_DIR -x "*.conf"
+        #rm ./bootstrap.zip
+      fi
+    fi
+
+    NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+    if [ -z "$NODEPID" ]; then
+      # start wallet
+      echo "Starting $ALIAS."
+      sh ~/bin/${NAME}d_$NODEALIAS.sh
+      #systemctl start ${NAME}d_$NODEALIAS.service
+      sleep 2 # wait 2 seconds
+    fi
 
 	  break
 	else

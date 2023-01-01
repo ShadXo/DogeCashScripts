@@ -38,17 +38,17 @@ if [ -z "$NAME" ]; then
 fi
 
 # GET CONFIGURATION
-declare -r SCRIPTPATH=$( cd $(dirname ${BASH_SOURCE[0]}) > /dev/null; pwd -P )
+#declare -r SCRIPTPATH=$( cd $(dirname ${BASH_SOURCE[0]}) > /dev/null; pwd -P )
 #SETUP_CONF_FILE="${SCRIPTPATH}/coins/${NAME}/${NAME}.env"
 SETUP_CONF_FILE="./coins/${NAME}/${NAME}.env"
-if [ `wget --spider -q https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env` ]; then
+#if [ `wget --spider -q https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env` ]; then
 mkdir -p ./coins/${NAME}
 wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env -O $SETUP_CONF_FILE > /dev/null 2>&1
 chmod 777 $SETUP_CONF_FILE &> /dev/null
 #dos2unix $SETUP_CONF_FILE > /dev/null 2>&1
-fi
+#fi
 
-if [ -f ${SETUP_CONF_FILE} ]; then
+if [ -f ${SETUP_CONF_FILE} ] && [ -s ${SETUP_CONF_FILE} ]; then
   echo "Using setup env file: ${SETUP_CONF_FILE}"
   source "${SETUP_CONF_FILE}"
 else

@@ -43,7 +43,7 @@ else
   ALIAS=${ALIAS,,}
 fi
 
-for FILE in $(ls ~/bin/${NAME}-cli_$AlIAS.sh | sort -V); do
+for FILE in $(ls ~/bin/${NAME}-cli_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
   $FILE getmasternodestatus
