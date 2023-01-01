@@ -9,13 +9,21 @@ BROWN='\033[0;34m'
 NC='\033[0m' # No Color
 
 # CONFIGURATION
+NAME=$1
+
+if [ -z "$NAME" ]; then
+  echo "Need to specify coin name"
+  exit -1
+fi
+
+: << NOTNEEDED
 NAME="dogecash"
 WALLETVERSION="5.4.4"
 
 # ADDITINAL CONFIGURATION
 WALLETDLFOLDER="${NAME}-${WALLETVERSION}"
 WALLETDL="${WALLETDLFOLDER}-x86_64-linux-gnu.tar.gz"
-URL="https://github.com/dogecash/dogecash/releases/download/${WALLETVERSION}/${WALLETDL}"
+WALLETURL="https://github.com/dogecash/dogecash/releases/download/${WALLETVERSION}/${WALLETDL}"
 CONF_FILE="${NAME}.conf"
 CONF_DIR_TMP=~/"${NAME}_tmp"
 BOOTSTRAPURL="https://www.dropbox.com/s/s4vy92sczk9c10s/blocks_n_chains.tar.gz"
@@ -23,10 +31,30 @@ BOOTSTRAPURL="https://www.dropbox.com/s/s4vy92sczk9c10s/blocks_n_chains.tar.gz"
 ADDNODESURL="https://api.dogecash.org/api/v1/network/peers"
 PORT=56740
 RPCPORT=57740
+NOTNEEDED
+
+# GET CONFIGURATION
+declare -r SCRIPTPATH=$( cd $(dirname ${BASH_SOURCE[0]}) > /dev/null; pwd -P )
+#SETUP_CONF_FILE="${SCRIPTPATH}/coins/${NAME}/${NAME}.env"
+SETUP_CONF_FILE="./coins/${NAME}/${NAME}.env"
+if [ `wget --spider -q https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env` ]; then
+mkdir -p ./coins/${NAME}
+wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env -O $SETUP_CONF_FILE > /dev/null 2>&1
+chmod 777 $SETUP_CONF_FILE &> /dev/null
+#dos2unix $SETUP_CONF_FILE > /dev/null 2>&1
+fi
+
+if [ -f ${SETUP_CONF_FILE} ]; then
+  echo "Using setup env file: ${SETUP_CONF_FILE}"
+  source "${SETUP_CONF_FILE}"
+else
+  echo "No setup env file found, create one at the following location: ./coins/${NAME}/${NAME}.env"
+  exit 1
+fi
 
 cd ~
 echo "******************************************************************************"
-echo "* Ubuntu 18.04 or newer operating system is recommended for this install.    *"
+echo "* Ubuntu 22.04 or newer operating system is recommended for this install.    *"
 echo "*                                                                            *"
 echo "* This script will install and configure your ${NAME} Coin masternodes (v${WALLETVERSION}).*"
 echo "******************************************************************************"
@@ -47,6 +75,11 @@ echo && echo && echo
 #      exit -1
 #   fi
 #fi
+
+if [[ $EUID -ne 0 ]]; then
+   echo -e "${RED}$0 must be run as root.${NC}"
+   exit 1
+fi
 
 function get_ip() {
   declare -a NODE_IPS
@@ -72,7 +105,7 @@ function get_ip() {
   fi
 }
 
-apt-get install -y net-tools > /dev/null
+apt-get install -y net-tools > /dev/null # Needed by netstat used in get_ip function
 
 get_ip
 #IP="[${NODEIP}]"
@@ -127,23 +160,55 @@ if [[ ${DOSETUP,,} =~ "y" ]]; then
       rm -rfd $CONF_DIR_TMP
    fi
 
+   # Create Temp folder
    mkdir -p $CONF_DIR_TMP
-   mkdir -p ~/.dogecash-params
+
+   if [ $PARAMS == "YES" ]; then
+     mkdir -p $PARAMS_PATH
+   fi
 
    cd $CONF_DIR_TMP
-   wget ${URL}
-   chmod 775 ${WALLETDL}
-   tar -xvzf ${WALLETDL}
-   #unzip ${WALLETDL} -d ${WALLETDLFOLDER}
+   echo "Downloading wallet"
+   if [[ $WALLETURL == *.tar.gz ]]; then
+     wget ${WALLETURL} -O wallet.tar.gz
+     WGET=$?
+   elif [[ $WALLETURL == *.zip ]]; then
+     wget ${WALLETURL} -O wallet.zip
+     WGET=$?
+   fi
 
-   #cd ./${WALLETDLFOLDER}/bin
-   cd ./${WALLETDLFOLDER}
-   sudo chmod 775 *
-   sudo mv ./bin/${NAME}* /usr/bin
-   sudo mv ./share/dogecash/*.params ~/.dogecash-params
+   if [ $WGET -ne 0 ]; then
+     echo -e "${RED}Wallet download failed, check the WALLETURL.${NC}"
+     rm -rfd $CONF_DIR_TMP
+     exit 1
+  fi
 
-   #read
-   cd ~
+   #chmod 775 ${WALLETDL}
+   #mkdir -p ${WALLETDLFOLDER}
+   if [[ $WALLETURL == *.tar.gz ]]; then
+     #tar -xvzf ${WALLETDL} #-C ${WALLETDLFOLDER}
+     tar -xvzf wallet.tar.gz
+   elif [[ $WALLETURL == *.zip ]]; then
+     #unzip ${WALLETDL} #-d ${WALLETDLFOLDER}
+     unzip wallet.zip
+   fi
+
+   if [ $WALLETDLFOLDER ]; then
+     cd ${WALLETDLFOLDER}
+   fi
+
+   chmod 775 *
+   mv */* . &> /dev/null # Some coins have files in subfolders
+   #mv ./bin/${NAME}* /usr/bin
+   #mv ./bin/${NAME}* /usr/local/bin # previous /usr/bin should be /usr/local/bin
+   mv ${NAME}d ${NAME}-cli /usr/local/bin # previous /usr/bin should be /usr/local/bin
+
+   if [ $PARAMS == "YES" ]; then
+     #mv ./share/${NAME}/*.params $PARAMS_PATH
+     mv */*.params $PARAMS_PATH
+   fi
+
+   # Remove Temp folder
    rm -rfd $CONF_DIR_TMP
 
    sudo apt-get install -y ufw
@@ -285,14 +350,14 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
        BASEIP="1.2.3."
        IP=$BASEIP$STARTNUMBER
        cat > /etc/netplan/${NAME}_$ALIAS.yaml <<-EOF
-       # This is the network config written by 'subiquity'
-       network:
-         ethernets:
-           ens160:
-             addresses:
-             - $BASEIP$STARTNUMBER/24
-         version: 2
-		EOF
+# This is the network config written by 'subiquity'
+network:
+  ethernets:
+    ens160:
+      addresses:
+      - $BASEIP$STARTNUMBER/24
+  version: 2
+EOF
     fi
     netplan apply
     break
@@ -342,8 +407,11 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
 
   # Create config file
   mkdir -p $CONF_DIR
-  echo "rpcuser=user"`shuf -i 100000-10000000 -n 1` >> ${NAME}.conf_TEMP
-  echo "rpcpassword=pass"`shuf -i 100000-10000000 -n 1` >> ${NAME}.conf_TEMP
+  cd $CONF_DIR
+  #echo "rpcuser=user"`shuf -i 100000-10000000 -n 1` >> ${NAME}.conf_TEMP
+  echo "rpcuser=user"`tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1` >> ${NAME}.conf_TEMP
+  #echo "rpcpassword=pass"`shuf -i 100000-10000000 -n 1` >> ${NAME}.conf_TEMP
+  echo "rpcpassword=pass"`tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1` >> ${NAME}.conf_TEMP
   echo "rpcallowip=127.0.0.1" >> ${NAME}.conf_TEMP
   echo "rpcport=$RPCPORT" >> ${NAME}.conf_TEMP
   echo "listen=1" >> ${NAME}.conf_TEMP
@@ -374,8 +442,8 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
   mv ${NAME}.conf_TEMP $CONF_DIR/${NAME}.conf
 
   if [[ ${TOR,,} =~ "y" ]]; then
-    union=$(grep "tor: Got service ID" ~/.${NAME}_${ALIAS}/debug.log | sed -e 's/\(^.*advertising service \)\(.*\)\(:.*$\)/\2/' | head -n 1)
-    sudo sed -i "s/masternodeaddr=$EXTERNALIP/masternodeaddr=$union/g" $CONF_DIR/${NAME}.conf
+    TORID=$(grep "tor: Got service ID" ~/.${NAME}_${ALIAS}/debug.log | sed -e 's/\(^.*advertising service \)\(.*\)\(:.*$\)/\2/' | head -n 1)
+    sudo sed -i "s/masternodeaddr=$EXTERNALIP/masternodeaddr=$TORID/g" $CONF_DIR/${NAME}.conf
   fi
 
   if [[ ${REBOOTRESTART,,} =~ "y" ]] ; then
@@ -384,28 +452,28 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
     #fi
     echo "Creating systemd service for ${NAME}d_$ALIAS"
     cat << EOF > /etc/systemd/system/${NAME}d_$ALIAS.service
-    [Unit]
-    Description=DogeCash Service for $ALIAS
-    After=network.target
-    [Service]
-    User=root
-    Group=root
-    Type=forking
-    ExecStart=${NAME}d -daemon -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR
-    ExecStop=-${NAME}-cli -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR stop
-    Restart=always
-    PrivateTmp=true
-    TimeoutStopSec=60s
-    TimeoutStartSec=10s
-    StartLimitInterval=120s
-    StartLimitBurst=5
-    [Install]
-    WantedBy=multi-user.target
+[Unit]
+Description=DogeCash Service for $ALIAS
+After=network.target
+[Service]
+User=root
+Group=root
+Type=forking
+ExecStart=${NAME}d -daemon -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR
+ExecStop=${NAME}-cli -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR stop
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=10s
+StartLimitInterval=120s
+StartLimitBurst=5
+[Install]
+WantedBy=multi-user.target
 EOF
   systemctl daemon-reload
-  sleep 2
-  #systemctl enable ${NAME}d_$ALIAS.service
-  #systemctl start ${NAME}d_$ALIAS.service
+  sleep 2 # wait 2 seconds
+  systemctl enable ${NAME}d_$ALIAS.service
+  systemctl start ${NAME}d_$ALIAS.service
   #systemctl enable --now ${NAME}d_$ALIAS.service
   fi
 
@@ -413,15 +481,17 @@ EOF
   if [ -z "$PID" ]; then
     # start wallet
     echo "Starting $ALIAS."
-    sh ~/bin/${NAME}d_$ALIAS.sh
-    sleep 2 # wait 2 second
+    #sh ~/bin/${NAME}d_$ALIAS.sh
+    systemctl start ${NAME}d_$ALIAS.service
+    sleep 2 # wait 2 seconds
   fi
 
   if [ -z "$PRIVKEY" ]; then
     echo "Generating masternode key on $ALIAS"
 	  for (( ; ; ))
 	  do
-      PRIVKEY=$(~/bin/${NAME}-cli_${ALIAS}.sh createmasternodekey)
+      #PRIVKEY=$(~/bin/${NAME}-cli_${ALIAS}.sh createmasternodekey)
+      PRIVKEY=$(${NAME}-cli -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR createmasternodekey)
       if [ -z "$PRIVKEY" ]; then
         echo "PRIVKEY is null"
       else
@@ -442,7 +512,8 @@ EOF
     else
 		  #STOP
       echo "Stopping $ALIAS. Please wait ..."
-	    ~/bin/${NAME}-cli_$ALIAS.sh stop
+	    #~/bin/${NAME}-cli_$ALIAS.sh stop
+      systemctl stop ${NAME}d_$ALIAS.service
     fi
 	  #echo "Please wait ..."
 	  sleep 2 # wait 2 seconds
@@ -456,40 +527,52 @@ EOF
     echo "masternodeprivkey=$PRIVKEY" >> $CONF_DIR/${NAME}.conf
   fi
 
-  if [ -z "$PID" ]; then
-    #ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf ) # If using Dropbox link
-    ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
-    sed -i '/addnode\=/d' $CONF_DIR/${NAME}.conf
+  if [ -z "$PID" ] && [ "$ADDNODESURL" ]; then
+    if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
+      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
+    else
+      #ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf ) # If using Dropbox link
+      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
+    fi
+    sed -i '/addnode=/d' $CONF_DIR/${NAME}.conf
     sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
     #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
-    echo "${ADDNODES}" | sed "s/^/addnode=/g" >> ~/.${NAME}_$NODEALIAS/${NAME}.conf
+    echo "${ADDNODES}" | sed "s/^/addnode=/g" >> ~/.${NAME}_$ALIAS/${NAME}.conf
+    sed -i '/addnode=localhost:56740/d' ~/.${NAME}_$ALIAS/${NAME}.conf # Remove addnode=localhost:56740 line from config, api is giving localhost back as a peer
   fi
 
   if [ -z "$PID" ]; then
     PARAM1="*"
     for FILE in $(ls ~/bin/${NAME}-cli_$PARAM1.sh | sort -V); do
-      SYNCNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
-      SYNCNODECONFPATH=$(echo "$HOME/.${NAME}_$SYNCNODEALIAS")
-      if [ "$SYNCNODEALIAS" != "$ALIAS" ]; then
-        echo "Checking ${SYNCNODEALIAS}."
+      #SYNCNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+      #SYNCNODECONFPATH=$(echo "$HOME/.${NAME}_$SYNCNODEALIAS")
+      CHECKNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+      CHECKNODECONFPATH=$(echo "$HOME/.${NAME}_$CHECKNODEALIAS")
+      if [ "$CHECKNODEALIAS" != "$ALIAS" ]; then
+        echo "Checking ${CHECKNODEALIAS}."
         #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/height/$BLOCK | jq -r ".result.hash")
         #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
         #BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/block/$BLOCK | jq -r ".hash")
         BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
         LASTBLOCK=$($FILE getblockcount)
         BLOCKHASHWALLET=$($FILE getblockhash $LASTBLOCK)
-      fi
-      if [ "$BLOCKHASHEXPLORER" == "$BLOCKHASHWALLET" ]; then
-        echo "*******************************************"
-        echo "Using the following node to sync faster."
-        echo "NODE ALIAS: "$SYNCNODEALIAS
-        echo "CONF FOLDER: "$SYNCNODECONFPATH
-        break
-      else
-        SYNCNODEALIAS=""
+        if [ "$BLOCKHASHEXPLORER" == "$BLOCKHASHWALLET" ]; then
+          SYNCNODEALIAS=$CHECKNODEALIAS
+          SYNCNODECONFPATH=$CHECKNODECONFPATH
+          echo "*******************************************"
+          echo "Using the following node to sync faster."
+          echo "NODE ALIAS: "$SYNCNODEALIAS
+          echo "CONF FOLDER: "$SYNCNODECONFPATH
+          break
+        else
+          CHECKNODEALIAS=""
+          CHECKNODECONFPATH=""
+        fi
       fi
     done
 
+    # Stopping the SYNCNODE is not needed, it will break when running the install script within the boot time of the node.
+    : << 'STOPPROCESS'
     for (( ; ; ))
     do
       SYNCNODEPID=`ps -ef | grep -i -w ${NAME}_$SYNCNODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
@@ -499,11 +582,13 @@ EOF
       else
         #STOP
         echo "Stopping $SYNCNODEALIAS. Please wait ..."
-        ~/bin/${NAME}-cli_$SYNCNODEALIAS.sh stop
+        #~/bin/${NAME}-cli_$SYNCNODEALIAS.sh stop
+        systemctl stop ${NAME}d_$SYNCNODEALIAS.service
       fi
       #echo "Please wait ..."
       sleep 2 # wait 2 seconds
     done
+STOPPROCESS
 
     if [ -z "$PID" ] && [ "$SYNCNODEALIAS" ]; then
       # Copy this Daemon.
@@ -516,38 +601,63 @@ EOF
       cp -r $SYNCNODECONFPATH/blocks $CONF_DIR &> /dev/null
       cp -r $SYNCNODECONFPATH/sporks $CONF_DIR &> /dev/null
       cp -r $SYNCNODECONFPATH/chainstate $CONF_DIR &> /dev/null
-    elif [ -z "$PID" ]; then
+    elif [ -z "$PID" ] && [ "$BOOTSTRAPURL" ]; then
       cd $CONF_DIR_TMP
       echo "Downloading bootstrap"
-      wget ${BOOTSTRAPURL} -O blocks_n_chains.tar.gz
-      cd ~
-      cd $CONF_DIR
-      echo "Copy BLOCKCHAIN without conf files"
-	    rm -R ./database &> /dev/null
-	    rm -R ./blocks	&> /dev/null
-	    rm -R ./sporks &> /dev/null
-	    rm -R ./chainstate &> /dev/null
-      mv $CONF_DIR_TMP/blocks_n_chains.tar.gz .
-      #unzip bootstrap.zip
-      tar -xvzf blocks_n_chains.tar.gz
-      rm ./blocks_n_chains.tar.gz
+      if [[ $BOOTSTRAPURL == *.tar.gz ]]; then
+        wget ${BOOTSTRAPURL} -O bootstrap.tar.gz
+        WGET=$?
+      elif [[ $BOOTSTRAPURL == *.zip ]]; then
+        wget ${BOOTSTRAPURL} -O bootstrap.zip
+        WGET=$?
+      fi
+
+      #if [ $? -eq 0 ]; then
+      if [ $WGET -eq 0 ]; then
+        echo "Downloading bootstrap successful"
+        #cd ~
+        cd $CONF_DIR
+        echo "Copying BLOCKCHAIN from bootstrap without conf files"
+  	    rm -R ./database &> /dev/null
+  	    rm -R ./blocks	&> /dev/null
+  	    rm -R ./sporks &> /dev/null
+  	    rm -R ./chainstate &> /dev/null
+
+        if [[ $BOOTSTRAPURL == *.tar.gz ]]; then
+          #mv $CONF_DIR_TMP/blocks_n_chains.tar.gz .
+          #tar -xvzf blocks_n_chains.tar.gz
+          tar -xvzf $CONF_DIR_TMP/bootstrap.tar.gz -C $CONF_DIR --exclude="*.conf"
+          #rm ./blocks_n_chains.tar.gz
+        elif [[ $BOOTSTRAPURL == *.zip ]]; then
+          #mv $CONF_DIR_TMP/bootstrap.zip .
+          #unzip bootstrap.zip
+          unzip $CONF_DIR_TMP/bootstrap.zip -d $CONF_DIR -x "*.conf"
+          #rm ./bootstrap.zip
+        fi
+      fi
+
     fi
   fi
 
+  # If stopping is not needed, there is no need to start.
+  : << 'STARTPROCESS'
   SYNCNODEPID=`ps -ef | grep -i -w ${NAME}_$SYNCNODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
   if [ -z "$SYNCNODEPID" ] && [ "$SYNCNODEALIAS" ]; then
     # start wallet
     echo "Starting $SYNCNODEALIAS."
-    sh ~/bin/${NAME}d_$SYNCNODEALIAS.sh
+    #sh ~/bin/${NAME}d_$SYNCNODEALIAS.sh
+    systemctl start ${NAME}d_$SYNCNODEALIAS.service
     sleep 2 # wait 2 seconds
   fi
+STARTPROCESS
 
   PID=`ps -ef | grep -i ${NAME} | grep -i -w ${NAME}_${ALIAS} | grep -v grep | awk '{print $2}'`
   if [ -z "$PID" ]; then
     # start wallet
     echo "Starting $ALIAS."
-    sh ~/bin/${NAME}d_$ALIAS.sh
-    sleep 2 # wait 2 second
+    #sh ~/bin/${NAME}d_$ALIAS.sh
+    systemctl start ${NAME}d_$ALIAS.service
+    sleep 2 # wait 2 seconds
   fi
 
   if [[ $NODEIP =~ .*:.* ]]; then
@@ -567,14 +677,14 @@ if [ -d "$CONF_DIR_TMP" ]; then
 fi
 
 echo ""
-echo -e "${YELLOW}****************************************************************"
-echo -e "**Copy/Paste lines below in Hot wallet masternode.conf file**"
+echo -e "${YELLOW}******************************************************************"
+echo -e "**Copy/Paste lines below in Hot wallet masternode.conf file              **"
 echo -e "**and replace txhash and outputidx with data from masternode outputs command**"
-echo -e "**in hot wallet console**"
-echo -e "**Tutorial: https://dogecash.org **"
-echo -e "****************************************************************${NC}"
+echo -e "**in hot wallet console                                                  **"
+echo -e "**Tutorial: https://dogecash.org                                         **"
+echo -e "**********************************************************************${NC}"
 echo -e "${RED}"
 cat ~/bin/masternode_config.txt
 echo -e "${NC}"
-echo "****************************************************************"
+echo "******************************************************************************"
 echo ""
