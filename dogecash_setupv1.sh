@@ -476,28 +476,35 @@ END
   if [ -z "$PID" ]; then
     PARAM1="*"
     for FILE in $(ls ~/bin/${NAME}-cli_$PARAM1.sh | sort -V); do
-      SYNCNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
-      SYNCNODECONFPATH=$(echo "$HOME/.${NAME}_$SYNCNODEALIAS")
-      if [ "$SYNCNODEALIAS" != "$ALIAS" ]; then
-        echo "Checking ${SYNCNODEALIAS}."
+      #SYNCNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+      #SYNCNODECONFPATH=$(echo "$HOME/.${NAME}_$SYNCNODEALIAS")
+      CHECKNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+      CHECKNODECONFPATH=$(echo "$HOME/.${NAME}_$CHECKNODEALIAS")
+      if [ "$CHECKNODEALIAS" != "$ALIAS" ]; then
+        echo "Checking ${CHECKNODEALIAS}."
         #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/height/$BLOCK | jq -r ".result.hash")
         #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
         #BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/block/$BLOCK | jq -r ".hash")
         BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
         LASTBLOCK=$($FILE getblockcount)
         BLOCKHASHWALLET=$($FILE getblockhash $LASTBLOCK)
-      fi
-      if [ "$BLOCKHASHEXPLORER" == "$BLOCKHASHWALLET" ]; then
-        echo "*******************************************"
-        echo "Using the following node to sync faster."
-        echo "NODE ALIAS: "$SYNCNODEALIAS
-        echo "CONF FOLDER: "$SYNCNODECONFPATH
-        break
-      else
-        SYNCNODEALIAS=""
+        if [ "$BLOCKHASHEXPLORER" == "$BLOCKHASHWALLET" ]; then
+          SYNCNODEALIAS=$CHECKNODEALIAS
+          SYNCNODECONFPATH=$CHECKNODECONFPATH
+          echo "*******************************************"
+          echo "Using the following node to sync faster."
+          echo "NODE ALIAS: "$SYNCNODEALIAS
+          echo "CONF FOLDER: "$SYNCNODECONFPATH
+          break
+        else
+          CHECKNODEALIAS=""
+          CHECKNODECONFPATH=""
+        fi
       fi
     done
 
+    # Stopping the SYNCNODE is not needed, it will break when running the install script within the boot time of the node.
+    : << 'STOPPROCESS'
     for (( ; ; ))
     do
       SYNCNODEPID=`ps -ef | grep -i -w ${NAME}_$SYNCNODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
@@ -507,11 +514,13 @@ END
       else
         #STOP
         echo "Stopping $SYNCNODEALIAS. Please wait ..."
-        ~/bin/${NAME}-cli_$SYNCNODEALIAS.sh stop
+        #~/bin/${NAME}-cli_$SYNCNODEALIAS.sh stop
+        systemctl stop ${NAME}d_$SYNCNODEALIAS.service
       fi
       #echo "Please wait ..."
       sleep 2 # wait 2 seconds
     done
+STOPPROCESS
 
     if [ -z "$PID" ] && [ "$SYNCNODEALIAS" ]; then
       # Copy this Daemon.
@@ -542,13 +551,17 @@ END
     fi
   fi
 
+  # If stopping is not needed, there is no need to start.
+  : << 'STARTPROCESS'
   SYNCNODEPID=`ps -ef | grep -i -w ${NAME}_$SYNCNODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
   if [ -z "$SYNCNODEPID" ] && [ "$SYNCNODEALIAS" ]; then
     # start wallet
     echo "Starting $SYNCNODEALIAS."
-    sh ~/bin/${NAME}d_$SYNCNODEALIAS.sh
+    #sh ~/bin/${NAME}d_$SYNCNODEALIAS.sh
+    systemctl start ${NAME}d_$SYNCNODEALIAS.service
     sleep 2 # wait 2 seconds
   fi
+STARTPROCESS
 
   PID=`ps -ef | grep -i ${NAME} | grep -i -w ${NAME}_${ALIAS} | grep -v grep | awk '{print $2}'`
   if [ -z "$PID" ]; then
