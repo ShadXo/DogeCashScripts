@@ -4,23 +4,57 @@
 ## Script sync wallet using current bootstrap
 ##
 
-NAME="dogecash"
-PARAM1=$*
-PARAM1=${PARAM1,,}
+# Execute getopt
+ARGS=$(getopt -o "c:n:" -l "coin:,node:" -n "$0" -- "$@");
+
+eval set -- "$ARGS";
+
+while true; do
+    case "$1" in
+        -c |--coin)
+            shift;
+                    if [ -n "$1" ];
+                    then
+                        NAME="$1";
+                        shift;
+                    fi
+            ;;
+        -n |--node)
+            shift;
+                    if [ -n "$1" ];
+                    then
+                        ALIAS="$1";
+                        shift;
+                    fi
+            ;;
+        --)
+            shift;
+            break;
+            ;;
+    esac
+done
+
+# Check required arguments
+if [ -z "$NAME" ]; then
+    echo "You need to specify a coin, use -c or --coin to do so."
+    echo "Example: $0 -c dogecash"
+    exit 1
+fi
 
 sudo apt-get install -y jq curl > /dev/null 2>&1
 
-if [ -z "$PARAM1" ]; then
-  echo "Need to specify node alias!"
+if [ -z "$ALIAS" ]; then
+  echo "You need to specify node alias, use -n or --node to do so."
+  echo "Example: $0 -c dogecash -n mn1"
   exit -1
 fi
 
-if [ ! -f ~/bin/${NAME}d_$PARAM1.sh ]; then
-    echo "Wallet $PARAM1 not found!"
+if [ ! -f ~/bin/${NAME}d_$ALIAS.sh ]; then
+    echo "Wallet $ALIAS not found!"
 	exit -1
 fi
 
-for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
+for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "****************************************************************************"
   COUNTER=1
   DATE=$(date '+%d.%m.%Y %H:%M:%S');

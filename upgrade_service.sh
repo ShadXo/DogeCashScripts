@@ -1,15 +1,67 @@
 #!/bin/bash
 
-NAME="dogecash"
-PARAM1=$*
+# Execute getopt
+ARGS=$(getopt -o "c:n:" -l "coin:,node:" -n "$0" -- "$@");
 
-if [ -z "$PARAM1" ]; then
-  PARAM1="*"
-else
-  PARAM1=${PARAM1,,}
+eval set -- "$ARGS";
+
+while true; do
+    case "$1" in
+        -c |--coin)
+            shift;
+                    if [ -n "$1" ];
+                    then
+                        NAME="$1";
+                        shift;
+                    fi
+            ;;
+        -n |--node)
+            shift;
+                    if [ -n "$1" ];
+                    then
+                        ALIAS="$1";
+                        shift;
+                    fi
+            ;;
+        --)
+            shift;
+            break;
+            ;;
+    esac
+done
+
+# Check required arguments
+if [ -z "$NAME" ]
+then
+    echo "You need to specify a coin, use -c or --coin to do so."
+    echo "Example: $0 -c dogecash"
+    exit 1
 fi
 
-for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
+if [ -z "$ALIAS" ]; then
+  ALIAS="*"
+else
+  ALIAS=${ALIAS,,}
+fi
+
+if [[ $EUID -ne 0 ]]; then
+   echo -e "${RED}$0 must be run as root.${NC}"
+   exit 1
+fi
+
+echo ""
+echo "Upgrade service started"
+echo "Checking for possible upgrades"
+
+if [[ -f "/usr/bin/${NAME}" ]]; then
+  echo "Moving daemon, cli, and some other files to the correct location"
+  mv /usr/bin/${NAME}* /usr/local/bin
+fi
+
+: << "SERVICE"
+if [[ -f ~/bin/${NAME}*.sh ]]; then
+echo "Upgrading node to use a service"
+for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
@@ -38,7 +90,7 @@ for FILE in $(ls ~/bin/${NAME}d_$PARAM1.sh | sort -V); do
   echo "Removing cron jobs"
   crontab -l | grep -v "@reboot sh ~/bin/${NAME}d_$NODEALIAS.sh" | crontab -
   crontab -l | grep -v "@reboot sh /root/bin/${NAME}d_$NODEALIAS.sh" | crontab -
-  sudo service cron reload
+  service cron reload
 
   echo "Creating systemd service for ${NAME}d_$NODEALIAS"
   function configure_systemd {
@@ -51,7 +103,7 @@ User=root
 Group=root
 Type=forking
 ExecStart=${NAME}d -daemon -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR
-ExecStop=-${NAME}-cli -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR stop
+ExecStop=${NAME}-cli -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR stop
 Restart=always
 PrivateTmp=true
 TimeoutStopSec=60s
@@ -62,12 +114,17 @@ StartLimitBurst=5
 WantedBy=multi-user.target
 EOF
 systemctl daemon-reload
-sleep 2
+sleep 2 # wait 2 seconds
 systemctl enable ${NAME}d_$NODEALIAS.service
 systemctl start ${NAME}d_$NODEALIAS.service
+#systemctl enable --now ${NAME}d_$NODEALIAS.service
 }
   echo "Node $NODEALIAS upgrade done"
 else
   echo "Node $NODEALIAS already upgraded"
 fi
 done
+fi
+SERVICE
+
+echo "Upgrade service complete"
