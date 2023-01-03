@@ -46,5 +46,13 @@ fi
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
-  $FILE
+
+  NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  if [ -z "$NODEPID" ]; then
+    # start wallet
+    echo "Starting $NODEALIAS."
+    ~/bin/${NAME}d_$NODEALIAS.sh
+    #systemctl start ${NAME}d_$NODEALIAS.service
+    sleep 2 # wait 2 seconds
+  fi
 done

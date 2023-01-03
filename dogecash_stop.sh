@@ -46,5 +46,23 @@ fi
 for FILE in $(ls ~/bin/${NAME}-cli_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
-  $FILE stop
+  
+  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+
+  for (( ; ; ))
+  do
+    NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+    if [ -z "$NODEPID" ]; then
+      echo ""
+      break
+    else
+      #STOP
+      echo "Stopping $NODEALIAS. Please wait ..."
+      ~/bin/${NAME}-cli_$NODEALIAS.sh stop
+      #systemctl stop ${NAME}d_$NODEALIAS.service
+    fi
+    #echo "Please wait ..."
+    sleep 2 # wait 2 seconds
+  done
+
 done

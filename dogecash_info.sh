@@ -50,15 +50,16 @@ for FILE in $(ls ~/bin/${NAME}-cli_$ALIAS.sh | sort -V); do
   echo "DATE: $DATE"
   echo "FILE: $FILE"
   #cat $FILE
+  
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
-  NODECONFPATH=$(echo "$HOME/.${NAME}_$NODEALIAS")
+  NODECONFDIR=$(echo "$HOME/.${NAME}_$NODEALIAS")
   NODEMNADDR=$(grep "masternodeaddr=" ~/.${NAME}_$NODEALIAS/${NAME}.conf | sed -e 's/\(^.*masternodeaddr=\)\(.*\)/\2/')
   NODEMNBIND=$(grep "bind=" ~/.${NAME}_$NODEALIAS/${NAME}.conf | sed -e 's/\(^.*bind=\)\(.*\)/\2/')
   NODEPRIVKEY=$(grep "masternodeprivkey=" ~/.${NAME}_$NODEALIAS/${NAME}.conf | sed -e 's/\(^.*masternodeprivkey=\)\(.*\)/\2/')
   #echo $NODEALIAS $NODEMNADDR $NODEPRIVKEY "txhash" "outputidx"
 
   #echo "NODE ALIAS: "$NODEALIAS
-  echo "CONF FOLDER: "$NODECONFPATH
+  echo "CONF FOLDER: "$NODECONFDIR
   echo "NODE ADDRESS: "$NODEMNADDR
   echo "NODE BIND: "$NODEMNBIND
   echo "NODE PRIVKEY: "$NODEPRIVKEY

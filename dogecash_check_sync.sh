@@ -67,13 +67,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "****************************************************************************"
   echo "FILE: $FILE"
 
-  #ALIASSTARTPOS=$(echo $FILE | grep -b -o _)
-  #ALIASLENGTH=$(echo $FILE | grep -b -o .sh)
-  #ALIASSTARTPOS_1=$(echo ${ALIASSTARTPOS:0:2})
-  #ALIASSTARTPOS_1=$[ALIASSTARTPOS_1 + 1]
-  #NODEALIAS=$(echo ${FILE:ALIASSTARTPOS_1:${ALIASLENGTH:0:2}-ALIASSTARTPOS_1})
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
-
 
   NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
   echo "NODEPID="$NODEPID
@@ -86,22 +80,23 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 	  WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $LASTBLOCK)
 
     if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
+      EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.bestBlockHash")
+      EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.version")
+    elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
       #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
       #BLOCKHASHCOINEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
       #BLOCKHASHCOINEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
       #LATESTWALLETVERSION=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.version")
-      EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.bestBlockHash")
-      EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.version")
+      EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
+      EXPLORERWALLETVERSION=0 # Can't get this from https://api2.dogecash.org
     elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
       #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.trittium.net/coreapi/v1/coins/MONK/blocks | jq -r ".response[0].blockhash")
       #LATESTWALLETVERSION=$(curl -s4 https://https://explorer.decenomy.net/coreapi/v1/coins/DOGECASH?expand=overview | jq -r ".response.versions.wallet")
       EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
       EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
-    elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
-      EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
-      EXPLORERWALLETVERSION=0 # Can't get this yet from https://api2.dogecash.org
     else
       echo "Unknown coin explorer, we can't compare blockhash or walletversion."
+      break
     fi
 
 	  WALLETVERSION=$(~/bin/${NAME}-cli_$NODEALIAS.sh getinfo | grep -i \"version\")

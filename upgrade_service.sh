@@ -53,10 +53,12 @@ echo ""
 echo "Upgrade service started"
 echo "Checking for possible upgrades"
 
+: << "DAEMON"
 if [[ -f "/usr/bin/${NAME}" ]]; then
   echo "Moving daemon, cli, and some other files to the correct location"
   mv /usr/bin/${NAME}* /usr/local/bin
 fi
+DAEMON
 
 : << "SERVICE"
 if [[ -f ~/bin/${NAME}*.sh ]]; then
@@ -64,9 +66,10 @@ echo "Upgrading node to use a service"
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
+  
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
-  NODECONFPATH=$(echo "$HOME/.${NAME}_$NODEALIAS")
-  echo CONF DIR: $NODECONFPATH
+  NODECONFDIR=$(echo "$HOME/.${NAME}_$NODEALIAS")
+  echo CONF DIR: $NODECONFDIR
 
   echo "Node $NODEALIAS will be upgraded when this timer reaches 0"
   seconds=10
@@ -80,8 +83,21 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}d_$NODEALIAS.service"
   if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
 
-  ~/bin/${NAME}-cli_$NODEALIAS.sh stop
-  sleep 2 # wait 2 seconds
+  for (( ; ; ))
+  do
+    NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+    if [ -z "$NODEPID" ]; then
+      echo ""
+      break
+    else
+      #STOP
+      echo "Stopping $NODEALIAS. Please wait ..."
+      ~/bin/${NAME}-cli_$NODEALIAS.sh stop
+      #systemctl stop ${NAME}d_$NODEALIAS.service
+    fi
+    #echo "Please wait ..."
+    sleep 2 # wait 2 seconds
+  done
 
   echo "Removing other node files?????????????????????? NEEDS TESTING"
   rm ~/bin/${NAME}-cli_$NODEALIAS.sh
@@ -102,8 +118,8 @@ After=network.target
 User=root
 Group=root
 Type=forking
-ExecStart=${NAME}d -daemon -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR
-ExecStop=${NAME}-cli -conf=$CONF_DIR/${NAME}.conf -datadir=$CONF_DIR stop
+ExecStart=${NAME}d -daemon -conf=$NODECONFDIR/${NAME}.conf -datadir=$NODECONFDIR
+ExecStop=${NAME}-cli -conf=$NODECONFDIR/${NAME}.conf -datadir=$NODECONFDIR stop
 Restart=always
 PrivateTmp=true
 TimeoutStopSec=60s

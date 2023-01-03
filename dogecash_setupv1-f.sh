@@ -431,10 +431,10 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
   fi
 
   if [ -z "$PID" ]; then
-    PARAM1="*"
-    for FILE in $(ls ~/bin/${NAME}-cli_$PARAM1.sh | sort -V); do
+    CHECKNODE="*"
+    for FILE in $(ls ~/bin/${NAME}-cli_$CHECKNODE.sh | sort -V); do
       SYNCNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
-      SYNCNODECONFPATH=$(echo "$HOME/.${NAME}_$SYNCNODEALIAS")
+      SYNCNODECONFDIR=$(echo "$HOME/.${NAME}_$SYNCNODEALIAS")
       if [ "$SYNCNODEALIAS" != "$ALIAS" ]; then
         echo "Checking ${SYNCNODEALIAS}."
         #BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/height/$BLOCK | jq -r ".result.hash")
@@ -448,7 +448,7 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
         echo "*******************************************"
         echo "Using the following node to sync faster."
         echo "NODE ALIAS: "$SYNCNODEALIAS
-        echo "CONF FOLDER: "$SYNCNODECONFPATH
+        echo "CONF FOLDER: "$SYNCNODECONFDIR
         break
       else
         SYNCNODEALIAS=""
@@ -477,10 +477,10 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
       rm -R $CONF_DIR/blocks	&> /dev/null
       rm -R $CONF_DIR/sporks &> /dev/null
       rm -R $CONF_DIR/chainstate &> /dev/null
-      cp -r $SYNCNODECONFPATH/database $CONF_DIR &> /dev/null
-      cp -r $SYNCNODECONFPATH/blocks $CONF_DIR &> /dev/null
-      cp -r $SYNCNODECONFPATH/sporks $CONF_DIR &> /dev/null
-      cp -r $SYNCNODECONFPATH/chainstate $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFDIR/database $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFDIR/blocks $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFDIR/sporks $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFDIR/chainstate $CONF_DIR &> /dev/null
     elif [ -z "$PID" ]; then
       cd $CONF_DIR_TMP
       echo "Downloading bootstrap"

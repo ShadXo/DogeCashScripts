@@ -46,18 +46,33 @@ fi
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
+  
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
 
+  for (( ; ; ))
+  do
+    NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+    if [ -z "$NODEPID" ]; then
+      echo ""
+      break
+    else
+      #STOP
+      echo "Stopping $NODEALIAS. Please wait ..."
+      ~/bin/${NAME}-cli_$NODEALIAS.sh stop
+      #systemctl stop ${NAME}d_$NODEALIAS.service
+    fi
+    #echo "Please wait ..."
+    sleep 2 # wait 2 seconds
+  done
+
   NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-  echo "NODEPID="$NODEPID
-
-  if [ "$NODEPID" ]; then
-  ~/bin/${NAME}-cli_$NODEALIAS.sh stop
-  sleep 2 # wait 2 seconds
+  if [ -z "$NODEPID" ]; then
+    # start wallet
+    echo "Starting $NODEALIAS."
+    ~/bin/${NAME}d_$NODEALIAS.sh
+    #systemctl start ${NAME}d_$NODEALIAS.service
+    sleep 2 # wait 2 seconds
   fi
-
-  $FILE
-  sleep 3 # wait 3 seconds
 
   NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
   echo "NODEPID="$NODEPID

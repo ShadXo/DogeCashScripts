@@ -80,20 +80,13 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   DATE=$(date '+%d.%m.%Y %H:%M:%S');
   echo "DATE: $DATE"
   echo "FILE: $FILE"
-  #ALIASSTARTPOS=$(echo $FILE | grep -b -o _)
-  #ALIASLENGTH=$(echo $FILE | grep -b -o .sh)./mon
-  # echo ${ALIASSTARTPOS:0:2}
-  #ALIASSTARTPOS_1=$(echo ${ALIASSTARTPOS:0:2})
-  #ALIASSTARTPOS_1=$[ALIASSTARTPOS_1 + 1]
-  #NODEALIAS=$(echo ${FILE:ALIASSTARTPOS_1:${ALIASLENGTH:0:2}-ALIASSTARTPOS_1})
-  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
-  NODECONFPATH=$(echo "$HOME/.${NAME}_$NODEALIAS")
-  # echo $ALIASSTARTPOS_1
-  # echo ${ALIASLENGTH:0:2}
-  echo CONF DIR: $NODECONFPATH
 
-  if [ ! -d $NODECONFPATH ]; then
-	echo "Directory $NODECONFPATH not found!"
+  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+  NODECONFDIR=$(echo "$HOME/.${NAME}_$NODEALIAS")
+  echo CONF DIR: $NODECONFDIR
+
+  if [ ! -d $NODECONFDIR ]; then
+	echo "Directory $NODECONFDIR not found!"
 	exit -1
   fi
 
@@ -112,22 +105,17 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 	WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $LASTBLOCK)
 
   if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
-    #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
-    #BLOCKHASHCOINEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
-    #BLOCKHASHCOINEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
-    #LATESTWALLETVERSION=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.version")
     EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.bestBlockHash")
     EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.version")
-  elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
-    #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.trittium.net/coreapi/v1/coins/MONK/blocks | jq -r ".response[0].blockhash")
-    #LATESTWALLETVERSION=$(curl -s4 https://https://explorer.decenomy.net/coreapi/v1/coins/DOGECASH?expand=overview | jq -r ".response.versions.wallet")
-    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
-    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
   elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
     EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
-    EXPLORERWALLETVERSION=0 # Can't get this yet from https://api2.dogecash.org
+    EXPLORERWALLETVERSION=0 # Can't get this from https://api2.dogecash.org
+  elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
+    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
+    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
   else
     echo "Unknown coin explorer, we can't compare blockhash or walletversion."
+    break
   fi
 
   echo "LASTBLOCK="$LASTBLOCK
@@ -184,7 +172,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
     if [ $WGET -eq 0 ]; then
       echo "Downloading bootstrap successful"
       #cd ~
-      cd $NODECONFPATH
+      cd $NODECONFDIR
       echo "Copying BLOCKCHAIN from bootstrap without conf files"
       rm -R ./database &> /dev/null
       rm -R ./blocks	&> /dev/null
@@ -194,12 +182,12 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
       if [[ $BOOTSTRAPURL == *.tar.gz ]]; then
         #mv $CONF_DIR_TMP/blocks_n_chains.tar.gz .
         #tar -xvzf blocks_n_chains.tar.gz
-        tar -xvzf $CONF_DIR_TMP/bootstrap.tar.gz -C $CONF_DIR --exclude="*.conf"
+        tar -xvzf $CONF_DIR_TMP/bootstrap.tar.gz -C $NODECONFDIR --exclude="*.conf"
         #rm ./blocks_n_chains.tar.gz
       elif [[ $BOOTSTRAPURL == *.zip ]]; then
         #mv $CONF_DIR_TMP/bootstrap.zip .
         #unzip bootstrap.zip
-        unzip $CONF_DIR_TMP/bootstrap.zip -d $CONF_DIR -x "*.conf"
+        unzip $CONF_DIR_TMP/bootstrap.zip -d $NODECONFDIR -x "*.conf"
         #rm ./bootstrap.zip
       fi
     fi
@@ -207,8 +195,8 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
     NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
     if [ -z "$NODEPID" ]; then
       # start wallet
-      echo "Starting $ALIAS."
-      sh ~/bin/${NAME}d_$NODEALIAS.sh
+      echo "Starting $NODEALIAS."
+      ~/bin/${NAME}d_$NODEALIAS.sh
       #systemctl start ${NAME}d_$NODEALIAS.service
       sleep 2 # wait 2 seconds
     fi

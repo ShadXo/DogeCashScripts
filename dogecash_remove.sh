@@ -46,9 +46,10 @@ fi
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
+  
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
-  NODECONFPATH=$(echo "$HOME/.${NAME}_$NODEALIAS")
-  echo CONF DIR: $NODECONFPATH
+  NODECONFDIR=$(echo "$HOME/.${NAME}_$NODEALIAS")
+  echo CONF DIR: $NODECONFDIR
 
   echo "Node $NODEALIAS will be deleted when this timer reaches 0"
   seconds=10
@@ -59,10 +60,24 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
     echo -ne "$(date -u --date @$(( date1 - $(date -u +%s) )) +%H:%M:%S)\r";
   done
 
-  ~/bin/${NAME}-cli_$NODEALIAS.sh stop
-  sleep 2 # wait 2 seconds
+  for (( ; ; ))
+  do
+    NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+    if [ -z "$NODEPID" ]; then
+      echo ""
+      break
+    else
+      #STOP
+      echo "Stopping $NODEALIAS. Please wait ..."
+      ~/bin/${NAME}-cli_$NODEALIAS.sh stop
+      #systemctl stop ${NAME}d_$NODEALIAS.service
+    fi
+    #echo "Please wait ..."
+    sleep 2 # wait 2 seconds
+  done
+
   echo "Removing conf folder"
-  rm -rdf $NODECONFPATH
+  rm -rdf $NODECONFDIR
   echo "Removing other node files"
   rm ~/bin/${NAME}-cli_$NODEALIAS.sh
   rm ~/bin/${NAME}d_$NODEALIAS.sh

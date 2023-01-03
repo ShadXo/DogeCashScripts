@@ -553,65 +553,70 @@ EOF
 
   if [ -z "$PID" ] && [ "$ADDNODESURL" ]; then
     if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
-      echo "Not tried it yet"
-    elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
+      if [ "$NAME" == "dogecash" ]; then
+        ADDNODES=$( curl -s4 https://api.dogecash.org/api/v1/network/peers | jq -r ".result" | jq -r '.[]' )
+      else
+        echo "Not tried it yet"
+      fi
+    elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
       #ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf ) # If using Dropbox link
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
-    elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
+    elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
     else
       echo "Unknown coin explorer, we will continue without addnodes."
+      break
     fi
-  fi
 
     sed -i '/addnode=/d' $CONF_DIR/${NAME}.conf
     sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
     #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
-    echo "${ADDNODES}" | sed "s/^/addnode=/g" >> ~/.${NAME}_$ALIAS/${NAME}.conf
-    sed -i '/addnode=localhost:56740/d' ~/.${NAME}_$ALIAS/${NAME}.conf # Remove addnode=localhost:56740 line from config, api is giving localhost back as a peer
+    echo "${ADDNODES}" | sed "s/^/addnode=/g" >> $CONF_DIR/${NAME}.conf
+    sed -i '/addnode=localhost:56740/d' $CONF_DIR/${NAME}.conf # Remove addnode=localhost:56740 line from config, api is giving localhost back as a peer
   fi
 
   if [ -z "$PID" ]; then
-    PARAM1="*"
-    for FILE in $(ls ~/bin/${NAME}-cli_$PARAM1.sh | sort -V); do
+    CHECKNODE="*"
+    for FILE in $(ls ~/bin/${NAME}-cli_$CHECKNODE.sh | sort -V); do
       #SYNCNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
-      #SYNCNODECONFPATH=$(echo "$HOME/.${NAME}_$SYNCNODEALIAS")
+      #SYNCNODECONFDIR=$(echo "$HOME/.${NAME}_$SYNCNODEALIAS")
       CHECKNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
-      CHECKNODECONFPATH=$(echo "$HOME/.${NAME}_$CHECKNODEALIAS")
+      CHECKNODECONFDIR=$(echo "$HOME/.${NAME}_$CHECKNODEALIAS")
       if [ "$CHECKNODEALIAS" != "$ALIAS" ]; then
         echo "Checking ${CHECKNODEALIAS}."
         if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
+          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.bestBlockHash")
+          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.version")
+        elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
           #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
           #BLOCKHASHCOINEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
           #BLOCKHASHCOINEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
           #LATESTWALLETVERSION=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.version")
-          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.bestBlockHash")
-          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.version")
+          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
+          EXPLORERWALLETVERSION=0 # Can't get this from https://api2.dogecash.org
         elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
           #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.trittium.net/coreapi/v1/coins/MONK/blocks | jq -r ".response[0].blockhash")
           #LATESTWALLETVERSION=$(curl -s4 https://https://explorer.decenomy.net/coreapi/v1/coins/DOGECASH?expand=overview | jq -r ".response.versions.wallet")
           EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
           EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
-        elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
-          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
-          EXPLORERWALLETVERSION=0 # Can't get this yet from https://api2.dogecash.org
         else
           echo "Unknown coin explorer, we can't compare blockhash or walletversion."
+          break
         fi
 
         LASTBLOCK=$($FILE getblockcount)
         WALLETBLOCKHASH=$($FILE getblockhash $LASTBLOCK)
         if [ "$EXPLORERBLOCKHASH" == "$WALLETBLOCKHASH" ]; then
           SYNCNODEALIAS=$CHECKNODEALIAS
-          SYNCNODECONFPATH=$CHECKNODECONFPATH
+          SYNCNODECONFDIR=$CHECKNODECONFDIR
           echo "*******************************************"
           echo "Using the following node to sync faster."
           echo "NODE ALIAS: "$SYNCNODEALIAS
-          echo "CONF FOLDER: "$SYNCNODECONFPATH
+          echo "CONF FOLDER: "$SYNCNODECONFDIR
           break
         else
           CHECKNODEALIAS=""
-          CHECKNODECONFPATH=""
+          CHECKNODECONFDIR=""
         fi
       fi
     done
@@ -642,10 +647,10 @@ STOPPROCESS
       rm -R $CONF_DIR/blocks	&> /dev/null
       rm -R $CONF_DIR/sporks &> /dev/null
       rm -R $CONF_DIR/chainstate &> /dev/null
-      cp -r $SYNCNODECONFPATH/database $CONF_DIR &> /dev/null
-      cp -r $SYNCNODECONFPATH/blocks $CONF_DIR &> /dev/null
-      cp -r $SYNCNODECONFPATH/sporks $CONF_DIR &> /dev/null
-      cp -r $SYNCNODECONFPATH/chainstate $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFDIR/database $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFDIR/blocks $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFDIR/sporks $CONF_DIR &> /dev/null
+      cp -r $SYNCNODECONFDIR/chainstate $CONF_DIR &> /dev/null
     elif [ -z "$PID" ] && [ "$BOOTSTRAPURL" ]; then
       cd $CONF_DIR_TMP
       echo "Downloading bootstrap"
