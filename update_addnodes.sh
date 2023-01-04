@@ -68,7 +68,7 @@ fi
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
-  
+
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
   NODECONFDIR=$(echo "$HOME/.${NAME}_$NODEALIAS")
 
@@ -88,7 +88,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
     sleep 2 # wait 2 seconds
   done
 
-  if [ -z "$PID" ] && [ "$ADDNODESURL" ]; then
+  if [ -z "$NODEPID" ] && [ "$ADDNODESURL" ]; then
     if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
       if [ "$NAME" == "dogecash" ]; then
         ADDNODES=$( curl -s4 https://api.dogecash.org/api/v1/network/peers | jq -r ".result" | jq -r '.[]' )
@@ -100,6 +100,8 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
     elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
+    elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
+      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[].addr | select( . | contains($PORT))' )
     else
       echo "Unknown coin explorer, we will continue without addnodes."
       break

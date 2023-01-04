@@ -68,7 +68,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   DATE=$(date '+%d.%m.%Y %H:%M:%S');
   echo "DATE: $DATE"
   echo "FILE: $FILE"
-  
+
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
   NODECONFDIR=$(echo "$HOME/.${NAME}_$NODEALIAS")
   echo CONF FOLDER: $NODECONFDIR
@@ -85,18 +85,25 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 	  break
 	fi
 
-	LASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
-	WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $LASTBLOCK)
+	WALLETLASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
+	WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $WALLETLASTBLOCK)
 
   if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
-    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.bestBlockHash")
-    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.version")
+    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER | jq -r ".backend.blocks")
+    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER | jq -r ".backend.bestBlockHash")
+    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER | jq -r ".backend.version")
   elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
+    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/info | jq -r ".result.blocks")
     EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
     EXPLORERWALLETVERSION=0 # Can't get this from https://api2.dogecash.org
   elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
+    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].height")
     EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
     EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
+  elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
+    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
+    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | jq -r "")
+    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
   else
     echo "Unknown coin explorer, we can't compare blockhash or walletversion."
     break
@@ -108,7 +115,8 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   WALLETVERSION=$(echo $WALLETVERSION | tr 'version : ' " ")
   WALLETVERSION=$(echo $WALLETVERSION | tr -d ' ' )
 
-  echo "LASTBLOCK="$LASTBLOCK
+  echo "WALLETLASTBLOCK="$WALLETLASTBLOCK
+  echo "EXPLORERLASTBLOCK="$EXPLORERLASTBLOCK
   echo "WALLETBLOCKHASH="$WALLETBLOCKHASH
   echo "EXPLORERBLOCKHASH="$EXPLORERBLOCKHASH
   echo "WALLETVERSION="$WALLETVERSION

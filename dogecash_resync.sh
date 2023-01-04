@@ -101,24 +101,32 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 	  echo "Node $NODEALIAS is STOPPED can't check if synced!"
 	fi
 
-	LASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
-	WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $LASTBLOCK)
+	WALLETLASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
+	WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $WALLETLASTBLOCK)
 
   if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
-    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.bestBlockHash")
-    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.version")
+    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER | jq -r ".backend.blocks")
+    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER | jq -r ".backend.bestBlockHash")
+    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER | jq -r ".backend.version")
   elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
+    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/info | jq -r ".result.blocks")
     EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
     EXPLORERWALLETVERSION=0 # Can't get this from https://api2.dogecash.org
   elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
+    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].height")
     EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
     EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
+  elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
+    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
+    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | jq -r "")
+    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
   else
     echo "Unknown coin explorer, we can't compare blockhash or walletversion."
     break
   fi
 
-  echo "LASTBLOCK="$LASTBLOCK
+  echo "WALLETLASTBLOCK="$WALLETLASTBLOCK
+  echo "EXPLORERLASTBLOCK="$EXPLORERLASTBLOCK
   echo "WALLETBLOCKHASH="$WALLETBLOCKHASH
   echo "EXPLORERBLOCKHASH="$EXPLORERBLOCKHASH
 

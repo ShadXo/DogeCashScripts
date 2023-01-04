@@ -58,6 +58,25 @@ if [ -z "$BLOCK" ]; then
   exit -1
 fi
 
+# GET CONFIGURATION
+#declare -r SCRIPTPATH=$( cd $(dirname ${BASH_SOURCE[0]}) > /dev/null; pwd -P )
+#SETUP_CONF_FILE="${SCRIPTPATH}/coins/${NAME}/${NAME}.env"
+SETUP_CONF_FILE="./coins/${NAME}/${NAME}.env"
+#if [ `wget --spider -q https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env` ]; then
+mkdir -p ./coins/${NAME}
+wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/coins/${NAME}/${NAME}.env -O $SETUP_CONF_FILE > /dev/null 2>&1
+chmod 777 $SETUP_CONF_FILE &> /dev/null
+#dos2unix $SETUP_CONF_FILE > /dev/null 2>&1
+#fi
+
+if [ -f ${SETUP_CONF_FILE} ] && [ -s ${SETUP_CONF_FILE} ]; then
+  echo "Using setup env file: ${SETUP_CONF_FILE}"
+  source "${SETUP_CONF_FILE}"
+else
+  echo "No setup env file found, create one at the following location: ./coins/${NAME}/${NAME}.env"
+  exit 1
+fi
+
 for (( ; ; ))
 do
   echo "Running check on $ALIAS"
@@ -70,27 +89,38 @@ do
       echo "Checking block $BLOCK"
 			#echo "FILE: $FILE"
 
-			#BLOCKHASHEXPLORER=$(curl -s4 https://api2.dogecash.org/height/$BLOCK | jq -r ".result.hash")
-      BLOCKHASHEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/block/$BLOCK | jq -r ".hash")
-			if [ -z "$BLOCKHASHEXPLORER" ]; then
+      if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
+        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/block/$BLOCK | jq -r ".hash")
+      elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
+        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/height/$BLOCK | jq -r ".result.hash")
+      elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
+        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
+      elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
+        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$BLOCK | jq -r "")
+      else
+        echo "Unknown coin explorer, we can't compare blockhash."
+        break
+      fi
+
+      if [ -z "$EXPLORERBLOCKHASH" ]; then
 			  break 2
 			fi
-      if [ "$BLOCKHASHEXPLORER" == null ]; then
+      if [ "$EXPLORERBLOCKHASH" == null ]; then
         echo "NO FORK FOUND"
 			  break 2
 			fi
 
-      #BLOCKHASHWALLET=$(~/bin/${NAME}-cli_$WALLET.sh getblockhash $BLOCK)
-      BLOCKHASHWALLET=$($FILE getblockhash $BLOCK)
-      if [ -z "$BLOCKHASHWALLET" ]; then
+      #WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$ALIAS.sh getblockhash $BLOCK)
+      WALLETBLOCKHASH=$($FILE getblockhash $BLOCK)
+      if [ -z "$WALLETBLOCKHASH" ]; then
 			  break 2
 			fi
 
-			echo "BLOCKHASHEXPLORER=$BLOCKHASHEXPLORER"
-      echo "BLOCKHASHWALLET=$BLOCKHASHWALLET"
+			echo "EXPLORERBLOCKHASH=$EXPLORERBLOCKHASH"
+      echo "WALLETBLOCKHASH=$WALLETBLOCKHASH"
 		done
 
-		if [ "$BLOCKHASHWALLET" != "$BLOCKHASHEXPLORER" ]; then
+		if [ "$WALLETBLOCKHASH" != "$EXPLORERBLOCKHASH" ]; then
 		  echo "FORK FOUND ON BLOCK $BLOCK !!!!"
 		  break
 		fi

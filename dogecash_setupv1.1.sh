@@ -563,6 +563,8 @@ EOF
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
     elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
+    elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
+      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[].addr | select( . | contains($PORT))' )
     else
       echo "Unknown coin explorer, we will continue without addnodes."
       break
@@ -585,27 +587,35 @@ EOF
       if [ "$CHECKNODEALIAS" != "$ALIAS" ]; then
         echo "Checking ${CHECKNODEALIAS}."
         if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
-          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.bestBlockHash")
-          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/blocks | jq -r ".backend.version")
+          EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER | jq -r ".backend.blocks")
+          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER | jq -r ".backend.bestBlockHash")
+          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER | jq -r ".backend.version")
         elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
           #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
           #BLOCKHASHCOINEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
           #BLOCKHASHCOINEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
           #LATESTWALLETVERSION=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.version")
+          EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/info | jq -r ".result.blocks")
           EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
           EXPLORERWALLETVERSION=0 # Can't get this from https://api2.dogecash.org
         elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
           #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.trittium.net/coreapi/v1/coins/MONK/blocks | jq -r ".response[0].blockhash")
           #LATESTWALLETVERSION=$(curl -s4 https://https://explorer.decenomy.net/coreapi/v1/coins/DOGECASH?expand=overview | jq -r ".response.versions.wallet")
+          EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].height")
+          #EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER | jq -r ".response.bestblockheight")
           EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
           EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
+        elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
+          EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
+          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | jq -r "")
+          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
         else
           echo "Unknown coin explorer, we can't compare blockhash or walletversion."
           break
         fi
 
-        LASTBLOCK=$($FILE getblockcount)
-        WALLETBLOCKHASH=$($FILE getblockhash $LASTBLOCK)
+        WALLETLASTBLOCK=$($FILE getblockcount)
+        WALLETBLOCKHASH=$($FILE getblockhash $WALLETLASTBLOCK)
         if [ "$EXPLORERBLOCKHASH" == "$WALLETBLOCKHASH" ]; then
           SYNCNODEALIAS=$CHECKNODEALIAS
           SYNCNODECONFDIR=$CHECKNODECONFDIR
