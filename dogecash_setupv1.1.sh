@@ -358,12 +358,12 @@ for STARTNUMBER in `seq 1 1 $MNCOUNT`; do
    IP1=""
    for (( ; ; ))
    do
-     IP1=$(netstat -peanut -W | grep -i listen | grep -i $NODEIP)
+     IP1=$(netstat -peanut -W | grep -i listen | grep -i $NODEIP:$PORT)
 
      if [ -z "$IP1" ]; then
        break
      else
-       echo -e "${RED}IP: $NODEIP is already used.${NC}"
+       echo -e "${RED}IP: $NODEIP is already used for port: $PORT.${NC}"
        if [[ ${TOR,,} =~ "y" ]] ; then
          echo "Using TOR"
          #NODEIP="127.0.0.1"
@@ -462,12 +462,12 @@ EOF
     echo "masternodeprivkey=$PRIVKEY" >> ${NAME}.conf_TEMP
   fi
 
-  sudo ufw allow $PORT/tcp
+  ufw allow $PORT/tcp
   mv ${NAME}.conf_TEMP $CONF_DIR/${NAME}.conf
 
   if [[ ${TOR,,} =~ "y" ]]; then
     TORID=$(grep "tor: Got service ID" ~/.${NAME}_${ALIAS}/debug.log | sed -e 's/\(^.*advertising service \)\(.*\)\(:.*$\)/\2/' | head -n 1)
-    sudo sed -i "s/masternodeaddr=$EXTERNALIP/masternodeaddr=$TORID/g" $CONF_DIR/${NAME}.conf
+    sed -i "s/masternodeaddr=$EXTERNALIP/masternodeaddr=$TORID/g" $CONF_DIR/${NAME}.conf
   fi
 
   if [[ ${REBOOTRESTART,,} =~ "y" ]] ; then
@@ -726,8 +726,6 @@ STARTPROCESS
     MNCONFIG=$(echo $ALIAS $PUBIPv4:$PORT $PRIVKEY "txhash" "outputidx")
   fi
   echo $MNCONFIG >> ~/bin/masternode_config.txt
-
-
 
   COUNTER=$[COUNTER + 1]
 done
