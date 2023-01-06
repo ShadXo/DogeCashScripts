@@ -94,12 +94,14 @@ do
       elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
         EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/height/$BLOCK | jq -r ".result.hash")
       elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
-        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
+        #EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
+        echo "Can't get a specific block on decenomy explorers..."
+        break 2
       elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
         EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$BLOCK | jq -r "")
       else
         echo "Unknown coin explorer, we can't compare blockhash."
-        break
+        break 2
       fi
 
       if [ -z "$EXPLORERBLOCKHASH" ]; then

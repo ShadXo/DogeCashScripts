@@ -46,7 +46,7 @@ fi
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
-  
+
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
   NODECONFDIR=$(echo "$HOME/.${NAME}_$NODEALIAS")
   echo CONF DIR: $NODECONFDIR
@@ -85,5 +85,8 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   crontab -l | grep -v "@reboot sh ~/bin/${NAME}d_$NODEALIAS.sh" | crontab -
   crontab -l | grep -v "@reboot sh /root/bin/${NAME}d_$NODEALIAS.sh" | crontab -
   sudo service cron reload
+  #echo "Removing systemd service"
+  #rm /etc/systemd/system/${NAME}d_$NODEALIAS.service
+  #systemctl daemon-reload
   echo "Node $NODEALIAS removed"
 done
