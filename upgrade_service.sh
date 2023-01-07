@@ -54,14 +54,13 @@ echo "Upgrade service started"
 echo "Checking for possible upgrades"
 
 : << "DAEMON"
-if [[ -f "/usr/bin/${NAME}" ]]; then
+if [[ $(ls /usr/bin/${NAME}* 2> /dev/null) ]]; then
   echo "Moving daemon, cli, and some other files to the correct location"
   mv /usr/bin/${NAME}* /usr/local/bin
 fi
 DAEMON
 
 : << "SERVICE"
-if [[ -f ~/bin/${NAME}*.sh ]]; then
 echo "Upgrading node to use a service"
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
@@ -71,6 +70,9 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   NODECONFDIR=$(echo "$HOME/.${NAME}_$NODEALIAS")
   echo CONF DIR: $NODECONFDIR
 
+  DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
+  if [[ $(ls ~/bin/${NAME}d_$NODEALIAS.sh) ]] && [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
+
   echo "Node $NODEALIAS will be upgraded when this timer reaches 0"
   seconds=10
   date1=$(( $(date -u +%s) + seconds));
@@ -79,9 +81,6 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   do
     echo -ne "$(date -u --date @$(( date1 - $(date -u +%s) )) +%H:%M:%S)\r";
   done
-
-  DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
-  if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
 
   for (( ; ; ))
   do
@@ -99,17 +98,16 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
     sleep 2 # wait 2 seconds
   done
 
-  echo "Removing other node files?????????????????????? NEEDS TESTING"
-  rm ~/bin/${NAME}-cli_$NODEALIAS.sh
-  rm ~/bin/${NAME}d_$NODEALIAS.sh
+  #echo "Removing other node files?????????????????????? NEEDS TESTING"
+  #rm ~/bin/${NAME}-cli_$NODEALIAS.sh
+  #rm ~/bin/${NAME}d_$NODEALIAS.sh
 
   echo "Removing cron jobs"
   crontab -l | grep -v "@reboot sh ~/bin/${NAME}d_$NODEALIAS.sh" | crontab -
   crontab -l | grep -v "@reboot sh /root/bin/${NAME}d_$NODEALIAS.sh" | crontab -
   service cron reload
 
-  echo "Creating systemd service for ${NAME}d_$NODEALIAS"
-  function configure_systemd {
+  echo "Creating systemd service for ${NAME}_$NODEALIAS"
 cat << EOF > /etc/systemd/system/${NAME}_$NODEALIAS.service
 [Unit]
 Description=DogeCash Service for $NODEALIAS
@@ -134,13 +132,12 @@ sleep 2 # wait 2 seconds
 systemctl enable ${NAME}_$NODEALIAS.service
 systemctl start ${NAME}_$NODEALIAS.service
 #systemctl enable --now ${NAME}_$NODEALIAS.service
-}
+
   echo "Node $NODEALIAS upgrade done"
 else
   echo "Node $NODEALIAS already upgraded"
 fi
 done
-fi
 SERVICE
 
 echo "Upgrade service complete"
