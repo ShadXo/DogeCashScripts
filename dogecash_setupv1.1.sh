@@ -471,11 +471,11 @@ EOF
   fi
 
   if [[ ${REBOOTRESTART,,} =~ "y" ]] ; then
-    #DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}d_$ALIAS.service"
+    #DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$ALIAS.service"
     #if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
     #fi
-    echo "Creating systemd service for ${NAME}d_$ALIAS"
-    cat << EOF > /etc/systemd/system/${NAME}d_$ALIAS.service
+    echo "Creating systemd service for ${NAME}_$ALIAS"
+    cat << EOF > /etc/systemd/system/${NAME}_$ALIAS.service
 [Unit]
 Description=DogeCash Service for $ALIAS
 After=network.target
@@ -496,9 +496,9 @@ WantedBy=multi-user.target
 EOF
   systemctl daemon-reload
   sleep 2 # wait 2 seconds
-  systemctl enable ${NAME}d_$ALIAS.service
-  systemctl start ${NAME}d_$ALIAS.service
-  #systemctl enable --now ${NAME}d_$ALIAS.service
+  systemctl enable ${NAME}_$ALIAS.service
+  systemctl start ${NAME}_$ALIAS.service
+  #systemctl enable --now ${NAME}_$ALIAS.service
   fi
 
   PID=`ps -ef | grep -i ${NAME} | grep -i -w ${NAME}_${ALIAS} | grep -v grep | awk '{print $2}'`
@@ -506,7 +506,7 @@ EOF
     # start wallet
     echo "Starting $ALIAS."
     #sh ~/bin/${NAME}d_$ALIAS.sh
-    systemctl start ${NAME}d_$ALIAS.service
+    systemctl start ${NAME}_$ALIAS.service
     sleep 2 # wait 2 seconds
   fi
 
@@ -537,7 +537,7 @@ EOF
 		  #STOP
       echo "Stopping $ALIAS. Please wait ..."
 	    #~/bin/${NAME}-cli_$ALIAS.sh stop
-      systemctl stop ${NAME}d_$ALIAS.service
+      systemctl stop ${NAME}_$ALIAS.service
     fi
 	  #echo "Please wait ..."
 	  sleep 2 # wait 2 seconds
@@ -716,7 +716,7 @@ STARTPROCESS
     # start wallet
     echo "Starting $ALIAS."
     #sh ~/bin/${NAME}d_$ALIAS.sh
-    systemctl start ${NAME}d_$ALIAS.service
+    systemctl start ${NAME}_$ALIAS.service
     sleep 2 # wait 2 seconds
   fi
 

@@ -70,7 +70,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
       #STOP
       echo "Stopping $NODEALIAS. Please wait ..."
       ~/bin/${NAME}-cli_$NODEALIAS.sh stop
-      #systemctl stop ${NAME}d_$NODEALIAS.service
+      #systemctl stop ${NAME}_$NODEALIAS.service
     fi
     #echo "Please wait ..."
     sleep 2 # wait 2 seconds
@@ -86,7 +86,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   crontab -l | grep -v "@reboot sh /root/bin/${NAME}d_$NODEALIAS.sh" | crontab -
   sudo service cron reload
   #echo "Removing systemd service"
-  #rm /etc/systemd/system/${NAME}d_$NODEALIAS.service
+  #rm /etc/systemd/system/${NAME}_$NODEALIAS.service
   #systemctl daemon-reload
   echo "Node $NODEALIAS removed"
 done

@@ -46,7 +46,7 @@ fi
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
-  
+
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
 
   for (( ; ; ))
@@ -59,7 +59,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
       #STOP
       echo "Stopping $NODEALIAS. Please wait ..."
       ~/bin/${NAME}-cli_$NODEALIAS.sh stop
-      #systemctl stop ${NAME}d_$NODEALIAS.service
+      #systemctl stop ${NAME}_$NODEALIAS.service
     fi
     #echo "Please wait ..."
     sleep 2 # wait 2 seconds
@@ -70,7 +70,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
     # start wallet
     echo "Starting $NODEALIAS."
     ~/bin/${NAME}d_$NODEALIAS.sh
-    #systemctl start ${NAME}d_$NODEALIAS.service
+    #systemctl start ${NAME}_$NODEALIAS.service
     sleep 2 # wait 2 seconds
   fi
 

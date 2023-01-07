@@ -66,7 +66,7 @@ echo "Upgrading node to use a service"
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
   echo "FILE: $FILE"
-  
+
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
   NODECONFDIR=$(echo "$HOME/.${NAME}_$NODEALIAS")
   echo CONF DIR: $NODECONFDIR
@@ -80,7 +80,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
     echo -ne "$(date -u --date @$(( date1 - $(date -u +%s) )) +%H:%M:%S)\r";
   done
 
-  DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}d_$NODEALIAS.service"
+  DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
   if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
 
   for (( ; ; ))
@@ -93,7 +93,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
       #STOP
       echo "Stopping $NODEALIAS. Please wait ..."
       ~/bin/${NAME}-cli_$NODEALIAS.sh stop
-      #systemctl stop ${NAME}d_$NODEALIAS.service
+      #systemctl stop ${NAME}_$NODEALIAS.service
     fi
     #echo "Please wait ..."
     sleep 2 # wait 2 seconds
@@ -110,7 +110,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 
   echo "Creating systemd service for ${NAME}d_$NODEALIAS"
   function configure_systemd {
-cat << EOF > /etc/systemd/system/${NAME}d_$NODEALIAS.service
+cat << EOF > /etc/systemd/system/${NAME}_$NODEALIAS.service
 [Unit]
 Description=DogeCash Service for $NODEALIAS
 After=network.target
@@ -131,9 +131,9 @@ WantedBy=multi-user.target
 EOF
 systemctl daemon-reload
 sleep 2 # wait 2 seconds
-systemctl enable ${NAME}d_$NODEALIAS.service
-systemctl start ${NAME}d_$NODEALIAS.service
-#systemctl enable --now ${NAME}d_$NODEALIAS.service
+systemctl enable ${NAME}_$NODEALIAS.service
+systemctl start ${NAME}_$NODEALIAS.service
+#systemctl enable --now ${NAME}_$NODEALIAS.service
 }
   echo "Node $NODEALIAS upgrade done"
 else
