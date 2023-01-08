@@ -101,8 +101,9 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 	  echo "Node $NODEALIAS is STOPPED can't check if synced!"
 	fi
 
-	WALLETLASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
-	WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $WALLETLASTBLOCK)
+  WALLETLASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
+  WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $WALLETLASTBLOCK)
+  #WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getbestblockhash)
 
   if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
     EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER | jq -r ".backend.blocks")

@@ -85,8 +85,9 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 	  break
 	fi
 
-	WALLETLASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
-	WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $WALLETLASTBLOCK)
+  WALLETLASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
+  WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $WALLETLASTBLOCK)
+  #WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getbestblockhash)
 
   if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
     EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER | jq -r ".backend.blocks")
@@ -109,11 +110,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
     break
   fi
 
-  WALLETVERSION=$(~/bin/${NAME}-cli_$NODEALIAS.sh getinfo | grep -i \"version\")
-  WALLETVERSION=$(echo $WALLETVERSION | tr , " ")
-  WALLETVERSION=$(echo $WALLETVERSION | tr '"' " ")
-  WALLETVERSION=$(echo $WALLETVERSION | tr 'version : ' " ")
-  WALLETVERSION=$(echo $WALLETVERSION | tr -d ' ' )
+  WALLETVERSION=$(~/bin/${NAME}-cli_$NODEALIAS.sh getinfo | jq ".version")
 
   echo "WALLETLASTBLOCK="$WALLETLASTBLOCK
   echo "EXPLORERLASTBLOCK="$EXPLORERLASTBLOCK
