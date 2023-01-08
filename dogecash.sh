@@ -117,10 +117,10 @@ elif [[ ${OPTION} == "5" ]] ; then
   dos2unix dogecash_stop.sh > /dev/null 2>&1
   /bin/bash ./dogecash_stop.sh -c $COIN -n $ALIAS
 elif [[ ${OPTION} == "6" ]] ; then
-  wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_setupv1.sh -O dogecash_setupv1.sh > /dev/null 2>&1
-  chmod 777 dogecash_setupv1.sh
-  dos2unix dogecash_setupv1.sh > /dev/null 2>&1
-  /bin/bash ./dogecash_setupv1.sh
+  wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_setup.sh -O dogecash_setup.sh > /dev/null 2>&1
+  chmod 777 dogecash_setup.sh
+  dos2unix dogecash_setup.sh > /dev/null 2>&1
+  /bin/bash ./dogecash_setup.sh
 elif [[ ${OPTION} == "7" ]] ; then
   echo -e "${RED}For which node do you want to check masternode status? Enter alias (if empty it will run on all nodes)${NC}"
   read ALIAS
