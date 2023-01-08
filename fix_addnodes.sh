@@ -81,7 +81,13 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
     else
       #STOP
       echo "Stopping $NODEALIAS. Please wait ..."
-      ~/bin/${NAME}-cli_$NODEALIAS.sh stop
+      DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
+      if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
+        echo "You need to update and run the main menu again (dogecash.sh). It will upgrade some things"
+        ~/bin/${NAME}-cli_$NODEALIAS.sh stop
+      else
+        systemctl stop ${NAME}_$NODEALIAS.service
+      fi
       #systemctl stop ${NAME}_$NODEALIAS.service
     fi
     #echo "Please wait ..."
@@ -118,7 +124,12 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   if [ -z "$NODEPID" ]; then
     # start wallet
     echo "Starting $NODEALIAS."
-    ~/bin/${NAME}d_$NODEALIAS.sh
+    DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
+    if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
+      ~/bin/${NAME}d_$NODEALIAS.sh
+    else
+      systemctl start ${NAME}_$NODEALIAS.service
+    fi
     #systemctl start ${NAME}_$NODEALIAS.service
     sleep 2 # wait 2 seconds
   fi
