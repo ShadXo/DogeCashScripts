@@ -53,14 +53,14 @@ echo ""
 echo "Upgrade service started"
 echo "Checking for possible upgrades"
 
-: << "DAEMON"
+# << "DAEMON"
 if [[ $(ls /usr/bin/${NAME}* 2> /dev/null) ]]; then
   echo "Moving daemon, cli, and some other files to the correct location"
   mv /usr/bin/${NAME}* /usr/local/bin
 fi
-DAEMON
+#DAEMON
 
-: << "SERVICE"
+#: << "SERVICE"
 echo "Upgrading node to use a service"
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "*******************************************"
@@ -76,7 +76,6 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "Node $NODEALIAS will be upgraded when this timer reaches 0"
   seconds=10
   date1=$(( $(date -u +%s) + seconds));
-  echo "Press ctrl-c to stop"
   while [ "${date1}" -ge "$(date -u +%s)" ]
   do
     echo -ne "$(date -u --date @$(( date1 - $(date -u +%s) )) +%H:%M:%S)\r";
@@ -138,6 +137,6 @@ else
   echo "Node $NODEALIAS already upgraded"
 fi
 done
-SERVICE
+#SERVICE
 
 echo "Upgrade service complete"
