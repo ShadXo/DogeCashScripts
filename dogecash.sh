@@ -9,7 +9,9 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 YELLOW='\033[1;33m'
-BROWN='\033[0;34m'
+BROWN='\033[0;33m'
+CYAN='\033[0;36m'
+LIGHTCYAN='\033[1;36m'
 NC='\033[0m' # No Color
 
 ## Black        0;30     Dark Gray     1;30
@@ -48,6 +50,14 @@ if [ -z "$COIN" ]; then
   COIN="dogecash"
 fi
 
+if [ "$COIN" == "dogecash" ]; then
+  MAINCOLOR=$CYAN
+  ACCENTCOLOR=$LIGHTCYAN
+else
+  MAINCOLOR=$RED
+  ACCENTCOLOR=$LIGHTCYAN
+fi
+
 # Run upgrade service
 wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/upgrade_service.sh -O upgrade_service.sh > /dev/null 2>&1
 chmod 777 upgrade_service.sh
@@ -60,7 +70,7 @@ echo "***************DogeCash****************"
 echo "***************MAIN MENU***************"
 echo "*********https://dogecash.org**********"
 echo ""
-echo -e "${RED}1) LIST ALL NODES" # -> DOGECASH_LIST.SH" # OK
+echo -e "${MAINCOLOR}1) LIST ALL NODES" # -> DOGECASH_LIST.SH" # OK
 echo -e "2) CHECK NODES SYNC" #  -> DOGECASH_CHECK_SYNC.SH" # OK
 echo -e "3) RESYNC NODES THAT ARE OUT OF SYNC" #  -> DOGECASH_CHECK_RESYNC_ALL.SH" # OK
 echo -e "4) (RE-)START NODES" #  -> DOGECASH_RESTART.SH" # OK
@@ -73,7 +83,7 @@ echo -e "10) UPDATE NODE WALLET" # -> UPDATE_WALLET.sh # OK
 echo -e "11) CALCULATE FREE MEMORY AND CPU FOR NEW NODES" # -> memory_cpu_sysinfo.sh # OK
 echo -e "60) NODE INFO (DO NOT SHARE WITHOUT REMOVING PRIVATE INFO)" # -> dogecash_info.sh # OK
 echo -e "70) FORK FINDER" # -> find_fork.sh # OK
-echo -e "${YELLOW}12) DOGECASH LOGO${RED}" # DOGECASH LOGO
+echo -e "${ACCENTCOLOR}12) DOGECASH LOGO${MAINCOLOR}" # DOGECASH LOGO
 echo -e "0) EXIT${NC}" # OK
 echo "---------------------------------------"
 echo "Choose an option:"
@@ -91,7 +101,7 @@ case $OPTION in
         /bin/bash ./dogecash_list.sh -c $COIN
         ;;
     2)
-        echo -e "${RED}Which node do you want to check if synced? Enter alias (if empty it will run on all nodes)${NC}"
+        echo -e "${MAINCOLOR}Which node do you want to check if synced? Enter alias (if empty it will run on all nodes)${NC}"
         read ALIAS
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_check_sync.sh -O dogecash_check_sync.sh > /dev/null 2>&1
         chmod 777 dogecash_check_sync.sh
@@ -99,7 +109,7 @@ case $OPTION in
         /bin/bash ./dogecash_check_sync.sh -c $COIN -n $ALIAS
         ;;
     3)
-        echo -e "${RED}Which node do you want to check sync and resync? Enter alias (if empty it will run on all nodes)${NC}"
+        echo -e "${MAINCOLOR}Which node do you want to check sync and resync? Enter alias (if empty it will run on all nodes)${NC}"
         read ALIAS
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_check_resync_all.sh -O dogecash_check_resync_all.sh > /dev/null 2>&1
         chmod 777 dogecash_check_resync_all.sh
@@ -107,7 +117,7 @@ case $OPTION in
         /bin/bash ./dogecash_check_resync_all.sh -c $COIN -n $ALIAS
         ;;
     4)
-        echo -e "${RED}Which node do you want to (re-)start? Enter alias (if empty it will run on all nodes)${NC}"
+        echo -e "${MAINCOLOR}Which node do you want to (re-)start? Enter alias (if empty it will run on all nodes)${NC}"
         read ALIAS
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_restart.sh -O dogecash_restart.sh > /dev/null 2>&1
         chmod 777 dogecash_restart.sh
@@ -115,7 +125,7 @@ case $OPTION in
         /bin/bash ./dogecash_restart.sh -c $COIN -n $ALIAS
         ;;
     5)
-        echo -e "${RED}Which node do you want to stop? Enter alias (if empty it will run on all nodes)${NC}"
+        echo -e "${MAINCOLOR}Which node do you want to stop? Enter alias (if empty it will run on all nodes)${NC}"
         read ALIAS
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_stop.sh -O dogecash_stop.sh > /dev/null 2>&1
         chmod 777 dogecash_stop.sh
@@ -129,7 +139,7 @@ case $OPTION in
         /bin/bash ./dogecash_setup.sh
         ;;
     7)
-        echo -e "${RED}For which node do you want to check masternode status? Enter alias (if empty it will run on all nodes)${NC}"
+        echo -e "${MAINCOLOR}For which node do you want to check masternode status? Enter alias (if empty it will run on all nodes)${NC}"
         read ALIAS
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_check_status.sh -O dogecash_check_status.sh > /dev/null 2>&1
         chmod 777 dogecash_check_status.sh
@@ -137,7 +147,7 @@ case $OPTION in
         /bin/bash ./dogecash_check_status.sh -c $COIN -n $ALIAS
         ;;
     8)
-        echo -e "${RED}Which node do you want to resync? Enter alias (mandatory!)${NC}"
+        echo -e "${MAINCOLOR}Which node do you want to resync? Enter alias (mandatory!)${NC}"
         read ALIAS
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_resync.sh -O dogecash_resync.sh > /dev/null 2>&1
         chmod 777 dogecash_resync.sh
@@ -145,7 +155,7 @@ case $OPTION in
         /bin/bash ./dogecash_resync.sh -c $COIN -n $ALIAS
         ;;
     9)
-        echo -e "${RED}Which node do you want to remove? Enter alias (mandatory!)${NC}"
+        echo -e "${MAINCOLOR}Which node do you want to remove? Enter alias (mandatory!)${NC}"
         read ALIAS
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_remove.sh -O dogecash_remove.sh > /dev/null 2>&1
         chmod 777 dogecash_remove.sh
@@ -186,7 +196,7 @@ case $OPTION in
         /bin/bash ./dogecash_setupv1.1.sh -c $COIN
         ;;
     60)
-        echo -e "${RED}For which node do you want to get info? Enter alias (if empty it will run on all nodes)${NC}"
+        echo -e "${MAINCOLOR}For which node do you want to get info? Enter alias (if empty it will run on all nodes)${NC}"
         read ALIAS
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_info.sh -O dogecash_info.sh > /dev/null 2>&1
         chmod 777 dogecash_info.sh
@@ -194,9 +204,9 @@ case $OPTION in
         /bin/bash ./dogecash_info.sh -c $COIN -n $ALIAS
         ;;
     70)
-        echo -e "${RED}On which node do you want to check for a fork? Enter alias (mandatory!)${NC}"
+        echo -e "${MAINCOLOR}On which node do you want to check for a fork? Enter alias (mandatory!)${NC}"
         read NODE
-        echo -e "${RED}Start checking from block? (mandatory!)${NC}"
+        echo -e "${MAINCOLOR}Start checking from block? (mandatory!)${NC}"
         read BLOCK
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/find_fork.sh -O find_fork.sh > /dev/null 2>&1
         chmod 777 find_fork.sh
