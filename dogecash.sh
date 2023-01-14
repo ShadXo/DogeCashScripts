@@ -72,8 +72,9 @@ center() {
 }
 
 echo && echo
-echo "******** Powered by the Dogecash Community ********"
-echo "************** https://dogecash.org ***************"
+#echo "******** Powered by the DogeCash Community ********"
+echo "************** Powered by DogeCash ****************"
+echo "************** https://dogecash.net ***************"
 echo "***************************************** v1.1.0 **"
 #echo "******************** ${COIN^^} *********************"
 center ${COIN^^}
@@ -226,5 +227,5 @@ case $OPTION in
 esac
 
 ###
-read -n 1 -s -r -p "*****Press any key to go back to the DOGECASH MAIN MENU*****"
+read -n 1 -s -r -p "***** Press any key to go back to the ${COIN^^} MAIN MENU *****"
 /bin/bash ./dogecash.sh -c $COIN
