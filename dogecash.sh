@@ -64,11 +64,20 @@ chmod 777 upgrade_service.sh
 dos2unix upgrade_service.sh > /dev/null 2>&1
 /bin/bash ./upgrade_service.sh -c $COIN
 
+center() {
+  #termwidth="$(tput cols)"
+  termwidth=51
+  padding="$(printf '%0.1s' *{1..500})"
+  printf '%*.*s %s %*.*s\n' 0 "$(((termwidth-2-${#1})/2))" "$padding" "$1" 0 "$(((termwidth-1-${#1})/2))" "$padding"
+}
+
 echo && echo
-echo "*******************************v1.1.0**"
-echo "***************DogeCash****************"
-echo "***************MAIN MENU***************"
-echo "*********https://dogecash.org**********"
+echo "******** Powered by the Dogecash Community ********"
+echo "************** https://dogecash.org ***************"
+echo "***************************************** v1.1.0 **"
+#echo "******************** ${COIN^^} *********************"
+center ${COIN^^}
+echo "******************** MAIN MENU ********************"
 echo ""
 echo -e "${MAINCOLOR}1) LIST ALL NODES" # -> DOGECASH_LIST.SH" # OK
 echo -e "2) CHECK NODES SYNC" #  -> DOGECASH_CHECK_SYNC.SH" # OK
@@ -85,7 +94,7 @@ echo -e "60) NODE INFO (DO NOT SHARE WITHOUT REMOVING PRIVATE INFO)" # -> dogeca
 echo -e "70) FORK FINDER" # -> find_fork.sh # OK
 echo -e "${ACCENTCOLOR}12) DOGECASH LOGO${MAINCOLOR}" # DOGECASH LOGO
 echo -e "0) EXIT${NC}" # OK
-echo "---------------------------------------"
+echo "---------------------------------------------------"
 echo "Choose an option:"
 read OPTION
 # echo ${OPTION}
