@@ -63,15 +63,15 @@ fi
 #: << "SERVICE"
 echo "Upgrading node to use a service"
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
-  echo "*******************************************"
-  echo "FILE: $FILE"
-
   NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
   NODECONFDIR=$(echo "$HOME/.${NAME}_$NODEALIAS")
-  echo CONF DIR: $NODECONFDIR
 
   DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
   if [[ $(ls ~/bin/${NAME}d_$NODEALIAS.sh) ]] && [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
+  echo "*******************************************"
+  echo "FILE: $FILE"
+  echo "NODE ALIAS: $NODEALIAS"
+  echo "CONF DIR: $NODECONFDIR"
 
   echo "Node $NODEALIAS will be upgraded when this timer reaches 0"
   seconds=10
