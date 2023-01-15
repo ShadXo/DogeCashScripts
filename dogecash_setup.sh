@@ -691,7 +691,7 @@ STOPPROCESS
         elif [[ $BOOTSTRAPURL == *.zip ]]; then
           #mv $CONF_DIR_TMP/bootstrap.zip .
           #unzip bootstrap.zip
-          unzip $CONF_DIR_TMP/bootstrap.zip -d $CONF_DIR -x "*.conf"
+          unzip -o $CONF_DIR_TMP/bootstrap.zip -d $CONF_DIR -x "*.conf"
           #rm ./bootstrap.zip
         fi
       fi
