@@ -80,7 +80,7 @@ cd ~
 echo "******************************************************************************"
 echo "* Ubuntu 22.04 or newer operating system is recommended for this install.    *"
 echo "*                                                                            *"
-echo "* This script will install and configure your ${NAME} Coin masternodes (v${WALLETVERSION}).*"
+echo "* This script will install and configure your ${NAME^} masternodes (v${WALLETVERSION}).*"
 echo "******************************************************************************"
 echo && echo && echo
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
