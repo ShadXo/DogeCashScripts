@@ -98,7 +98,7 @@ do
         echo "Can't get a specific block on decenomy explorers..."
         break 2
       elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
-        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$BLOCK | jq -r "")
+        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$BLOCK | sed 's/"//g')
       else
         echo "Unknown coin explorer, we can't compare blockhash."
         break 2

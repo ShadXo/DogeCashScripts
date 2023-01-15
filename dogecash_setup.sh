@@ -607,7 +607,7 @@ EOF
           EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
         elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
           EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
-          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | jq -r "")
+          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | sed 's/"//g')
           EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
         else
           echo "Unknown coin explorer, we can't compare blockhash or walletversion."
