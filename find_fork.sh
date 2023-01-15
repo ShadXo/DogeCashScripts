@@ -107,7 +107,7 @@ do
       if [ -z "$EXPLORERBLOCKHASH" ]; then
 			  break 2
 			fi
-      if [ "$EXPLORERBLOCKHASH" == null ] || [[ "`echo $EXPLORERBLOCKHASH | jq -r .message 2> /dev/null`" == "Block height out of range" ]]; then
+      if [ "$EXPLORERBLOCKHASH" == null ] || [[ "`echo $EXPLORERBLOCKHASH | jq -r .error 2> /dev/null`" == "Block not found, Block not found" ]] || [[ "`echo $EXPLORERBLOCKHASH | jq -r .message 2> /dev/null`" == "Block height out of range" ]]  || [ "$EXPLORERBLOCKHASH" == "There was an error. Check your console." ]; then
         echo "NO FORK FOUND"
 			  break 2
 			fi
