@@ -146,7 +146,7 @@ case $OPTION in
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_setup.sh -O dogecash_setup.sh > /dev/null 2>&1
         chmod 777 dogecash_setup.sh
         dos2unix dogecash_setup.sh > /dev/null 2>&1
-        /bin/bash ./dogecash_setup.sh
+        /bin/bash ./dogecash_setup.sh -c $COIN
         ;;
     7)
         echo -e "${MAINCOLOR}For which node do you want to check masternode status? Enter alias (if empty it will run on all nodes)${NC}"
