@@ -97,24 +97,17 @@ if [ $WGET -ne 0 ]; then
 fi
 
 if [[ $WALLETURL == *.tar.gz ]]; then
-  #tar -xvzf ${WALLETDL} #-C ${WALLETDLFOLDER}
   tar -xvzf wallet.tar.gz
 elif [[ $WALLETURL == *.zip ]]; then
-  #unzip ${WALLETDL} #-d ${WALLETDLFOLDER}
   unzip wallet.zip
 fi
 
-if [ $WALLETDLFOLDER ]; then
-  cd ${WALLETDLFOLDER}
-fi
-
 chmod 775 *
-mv */* . &> /dev/null # Some coins have files in subfolders
+find . -type f -exec mv -t . {} + &> /dev/null # Some coins have files in subfolders
 mv ${NAME}d ${NAME}-cli /usr/local/bin # previous /usr/bin should be /usr/local/bin
 
 if [ $PARAMS == "YES" ]; then
-  #mv ./share/${NAME}/*.params $PARAMS_PATH
-  mv */*.params $PARAMS_PATH
+  mv *.params $PARAMS_PATH
 fi
 
 # Remove Temp folder
