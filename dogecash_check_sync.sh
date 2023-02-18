@@ -101,6 +101,10 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
       EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
     elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
       EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
+      EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK)
+      EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
+    elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
+      EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
       EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | sed 's/"//g')
       EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
     else

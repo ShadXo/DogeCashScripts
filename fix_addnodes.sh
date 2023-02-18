@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#ADDNODESURL="https://www.dropbox.com/s/s0pdil1rehsy4fu/peers.txt?dl=1"
-ADDNODESURL="https://api.dogecash.org/api/v1/network/peers"
-
 # Execute getopt
 ARGS=$(getopt -o "c:n:" -l "coin:,node:" -n "$0" -- "$@");
 
@@ -107,6 +104,8 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
     elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
     elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
+      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[] | select( .port | contains($PORT)) | .address' )
+    elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[].addr | select( . | contains($PORT))' )
     else
       echo "Unknown coin explorer, we will continue without addnodes."

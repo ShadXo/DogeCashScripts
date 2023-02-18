@@ -547,6 +547,8 @@ EOF
     elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
     elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
+      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[] | select( .port | contains($PORT)) | .address' )
+    elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
       ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[].addr | select( . | contains($PORT))' )
     else
       echo "Unknown coin explorer, we will continue without addnodes."
@@ -589,6 +591,10 @@ EOF
           EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
           EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
         elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
+          EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
+          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK)
+          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
+        elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
           EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
           EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | sed 's/"//g')
           EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
