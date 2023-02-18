@@ -86,6 +86,10 @@ FREEMEMMB=$(free -m | grep Mem | awk '{printf "%d\n", $4}')
 echo -e "${GREEN}Free memory ${FREEMEMMB} Mb${NC}"
 NUMOFFREENODESMEM=$(expr ${FREEMEMMB} / ${AVERAGEMEMMB})
 
+AVAILABLEMEMMB=$(free -m | grep Mem | awk '{printf "%d\n", $7}')
+echo -e "${GREEN}Available memory ${AVAILABLEMEMMB} Mb${NC}"
+NUMOFFREENODESAVAILABLEMEM=$(expr ${AVAILABLEMEMMB} / ${AVERAGEMEMMB})
+
 if [ -z "$AVERAGECPU" ]; then
    AVERAGECPU=0.5
 elif  [ $AVERAGECPU == 0 ]; then
@@ -97,5 +101,6 @@ NUMOFFREENODESCPU=$(echo "100 / ${AVERAGECPU}" | bc)
 ### RESULT ###
 echo ""
 echo -e "${YELLOW}Based on free memory, this server can host approx. ${RED}${NUMOFFREENODESMEM}${NC} ${YELLOW}additional nodes${NC}"
+echo -e "${YELLOW}Based on available memory, this server can host approx. ${RED}${NUMOFFREENODESAVAILABLEMEM}${NC} ${YELLOW}additional nodes${NC}"
 echo -e "${YELLOW}Based on free CPU, this server can host approx. ${RED}${NUMOFFREENODESCPU}${NC} ${YELLOW}additional nodes${NC}"
 echo -e "${PURPLE}###All data is for informational purposes only and may be inaccurate!###${NC}"
