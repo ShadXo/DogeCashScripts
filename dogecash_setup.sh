@@ -202,7 +202,7 @@ if [[ ${DOSETUP,,} =~ "y" ]]; then
    if [[ $WALLETURL == *.tar.gz ]]; then
      tar -xvzf wallet.tar.gz
    elif [[ $WALLETURL == *.zip ]]; then
-     unzip wallet.zip
+     unzip -o wallet.zip
    fi
 
    chmod 775 *

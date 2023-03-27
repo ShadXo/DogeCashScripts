@@ -206,7 +206,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
       elif [[ $BOOTSTRAPURL == *.zip ]]; then
         #mv $CONF_DIR_TMP/bootstrap.zip .
         #unzip bootstrap.zip
-        unzip $CONF_DIR_TMP/bootstrap.zip -d $NODECONFDIR -x "*.conf"
+        unzip -o $CONF_DIR_TMP/bootstrap.zip -d $NODECONFDIR -x "*.conf"
         #rm ./bootstrap.zip
       fi
     fi
