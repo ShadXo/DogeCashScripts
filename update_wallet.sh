@@ -71,6 +71,7 @@ echo "Wallet v${WALLETVERSION}"
 echo
 
 for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
+  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
   NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
   if [ -z "$NODEPID" ]; then
     echo ""
