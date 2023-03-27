@@ -112,11 +112,16 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
       break
     fi
 
-    sed -i '/addnode=/d' $NODECONFDIR/${NAME}.conf
-    sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $NODECONFDIR/${NAME}.conf # Remove empty lines at the end
-    #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
-    echo "${ADDNODES}" | sed "s/^/addnode=/g" >> $NODECONFDIR/${NAME}.conf
-    sed -i '/addnode=localhost:56740/d' $NODECONFDIR/${NAME}.conf # Remove addnode=localhost:56740 line from config, api is giving localhost back as a peer
+    if [ "$ADDNODES" ]; then
+      sed -i '/addnode=/d' $NODECONFDIR/${NAME}.conf
+      sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $NODECONFDIR/${NAME}.conf # Remove empty lines at the end
+      #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
+      echo "${ADDNODES}" | sed "s/^/addnode=/g" >> $NODECONFDIR/${NAME}.conf
+      sed -i '/addnode=localhost:56740/d' $NODECONFDIR/${NAME}.conf # Remove addnode=localhost:56740 line from config, api is giving localhost back as a peer
+    else
+      echo "Empty response, we will continue without addnodes."
+      break
+    fi
   fi
 
   NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
