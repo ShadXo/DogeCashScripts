@@ -37,6 +37,12 @@ if [ -z "$NAME" ]; then
     exit 1
 fi
 
+if [ -z "$ALIAS" ]; then
+  ALIAS="*"
+else
+  ALIAS=${ALIAS,,}
+fi
+
 # GET CONFIGURATION
 #declare -r SCRIPTPATH=$( cd $(dirname ${BASH_SOURCE[0]}) > /dev/null; pwd -P )
 #SETUP_CONF_FILE="${SCRIPTPATH}/coins/${NAME}/${NAME}.env"
@@ -64,13 +70,29 @@ echo "Welcome to the ${NAME} Masternode update script."
 echo "Wallet v${WALLETVERSION}"
 echo
 
-for FILE in ~/bin/${NAME}-cli*.sh; do
-  sh $FILE stop
-  sleep 2
+for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
+  NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  if [ -z "$NODEPID" ]; then
+    echo ""
+    break
+  else
+    #STOP
+    echo "Stopping $NODEALIAS. Please wait ..."
+    DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
+    if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
+      echo "You need to update and run the main menu again (dogecash.sh). It will upgrade some things"
+      ~/bin/${NAME}-cli_$NODEALIAS.sh stop
+    else
+      systemctl stop ${NAME}_$NODEALIAS.service
+    fi
+    #systemctl stop ${NAME}_$NODEALIAS.service
+  fi
+  #echo "Please wait ..."
+  sleep 2 # wait 2 seconds
 done
 
 cd ~
-sudo killall -9 ${NAME}d
+#sudo killall -9 ${NAME}d
 sudo rm -rdf /usr/local/bin/${NAME}*
 
 # Create Temp folder
@@ -117,10 +139,21 @@ fi
 # Remove Temp folder
 rm -rfd $CONF_DIR_TMP
 
-for FILE in ~/bin/${NAME}d*.sh; do
-  echo "FILE: $FILE"
-  sh $FILE
-  sleep 2
+for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
+  NODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
+  NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  if [ -z "$NODEPID" ]; then
+    # start wallet
+    echo "Starting $NODEALIAS."
+    DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
+    if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
+      ~/bin/${NAME}d_$NODEALIAS.sh
+    else
+      systemctl start ${NAME}_$NODEALIAS.service
+    fi
+    #systemctl start ${NAME}_$NODEALIAS.service
+    sleep 2 # wait 2 seconds
+  fi
 done
 
 echo "Your masternode wallets are now updated!"
