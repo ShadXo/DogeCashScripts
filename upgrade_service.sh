@@ -109,7 +109,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "Creating systemd service for ${NAME}_$NODEALIAS"
 cat << EOF > /etc/systemd/system/${NAME}_$NODEALIAS.service
 [Unit]
-Description=DogeCash Service for $NODEALIAS
+Description=Masternode Service for ${NAME}_$NODEALIAS
 After=network.target
 [Service]
 User=root

@@ -460,7 +460,7 @@ EOF
     echo "Creating systemd service for ${NAME}_$ALIAS"
     cat << EOF > /etc/systemd/system/${NAME}_$ALIAS.service
 [Unit]
-Description=DogeCash Service for $ALIAS
+Description=Masternode Service for ${NAME}_$ALIAS
 After=network.target
 [Service]
 User=root
