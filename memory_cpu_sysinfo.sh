@@ -8,8 +8,12 @@ YELLOW='\033[1;33m'
 BROWN='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Set to non interactive mode and auto restart services if needed
+export NEEDRESTART_MODE=a
+export DEBIAN_FRONTEND=noninteractive
+
 # dependencies
-sudo apt-get install -y bc
+apt-get install -y bc
 
 TOTALMEM=0
 TOTALCPU=0

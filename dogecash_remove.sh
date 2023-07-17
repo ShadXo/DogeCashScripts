@@ -90,7 +90,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   echo "Removing cron jobs"
   crontab -l | grep -v "@reboot sh ~/bin/${NAME}d_$NODEALIAS.sh" | crontab -
   crontab -l | grep -v "@reboot sh /root/bin/${NAME}d_$NODEALIAS.sh" | crontab -
-  sudo service cron reload
+  service cron reload
   DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
   if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
   echo "Removing systemd service"

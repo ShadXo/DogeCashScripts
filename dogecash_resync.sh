@@ -41,8 +41,6 @@ if [ -z "$NAME" ]; then
     exit 1
 fi
 
-sudo apt-get install -y jq curl > /dev/null 2>&1
-
 if [ -z "$ALIAS" ]; then
   echo "You need to specify node alias, use -n or --node to do so."
   echo "Example: $0 -c dogecash -n mn1"

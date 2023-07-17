@@ -93,8 +93,8 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 done
 
 cd ~
-#sudo killall -9 ${NAME}d
-sudo rm -rdf /usr/local/bin/${NAME}*
+#killall -9 ${NAME}d
+rm -rdf /usr/local/bin/${NAME}*
 
 # Create Temp folder
 mkdir -p $CONF_DIR_TMP
