@@ -90,6 +90,10 @@ echo "!                                                 !"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 echo && echo && echo
 
+# Set to non interactive mode and auto restart services if needed
+export NEEDRESTART_MODE=a
+export DEBIAN_FRONTEND=noninteractive
+
 #if [[ $(lsb_release -d) != *16.04* ]]; then
 #   echo -e "${RED}The operating system is not Ubuntu 16.04. You must be running on Ubuntu 16.04! Do you really want to continue? [y/n]${NC}"
 #   read OS_QUESTION
@@ -149,23 +153,23 @@ echo -e "${YELLOW}Do you want to install all needed dependencies (no if you did 
 read DOSETUP
 
 if [[ ${DOSETUP,,} =~ "y" ]]; then
-  sudo apt-get update
-  sudo apt-get -y upgrade
-  sudo apt-get -y dist-upgrade
-  sudo apt-get install -y nano htop git
-  sudo apt-get install -y dos2unix
-  sudo apt-get install -y unzip
-  sudo apt-get install -y jq curl wget
+  apt-get update
+  apt-get -y upgrade
+  apt-get -y dist-upgrade
+  apt-get install -y nano htop git
+  apt-get install -y dos2unix
+  apt-get install -y unzip
+  apt-get install -y jq curl wget
 
    if [ $(free | awk '/^Swap:/ {exit !$2}') ] || [ ! -f "/var/swap.img" ]; then
      echo "No proper swap, creating it"
-     sudo touch /var/swap.img
-     sudo chmod 600 /var/swap.img
-     sudo dd if=/dev/zero of=/var/swap.img bs=1024k count=2000
-     sudo mkswap /var/swap.img
-     sudo swapon /var/swap.img
-     sudo free
-     sudo echo "/var/swap.img none swap sw 0 0" >> /etc/fstab
+     touch /var/swap.img
+     chmod 600 /var/swap.img
+     dd if=/dev/zero of=/var/swap.img bs=1024k count=2000
+     mkswap /var/swap.img
+     swapon /var/swap.img
+     free
+     echo "/var/swap.img none swap sw 0 0" >> /etc/fstab
    else
      echo "All good, we have a swap"
    fi
@@ -218,12 +222,12 @@ if [[ ${DOSETUP,,} =~ "y" ]]; then
    # Remove Temp folder
    rm -rfd $CONF_DIR_TMP
 
-   sudo apt-get install -y ufw
-   sudo ufw allow ssh/tcp
-   sudo ufw limit ssh/tcp
-   sudo ufw logging on
-   echo "y" | sudo ufw enable
-   sudo ufw status
+   apt-get install -y ufw
+   ufw allow ssh/tcp
+   ufw limit ssh/tcp
+   ufw logging on
+   echo "y" | ufw enable
+   ufw status
 
    mkdir -p ~/bin
    echo 'export PATH=~/bin:$PATH' >> ~/.bash_aliases
@@ -251,7 +255,7 @@ if [[ ${TOR,,} =~ "y" ]]; then
   if (service --status-all | grep -w "tor" &>/dev/null); then
     echo ""
   else
-    sudo apt install -y tor
+    apt install -y tor
     echo -e 'ControlPort 9051\nLongLivedPorts 56740' >> /etc/tor/torrc
     systemctl stop tor
     systemctl start tor
