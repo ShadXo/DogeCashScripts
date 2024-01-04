@@ -31,11 +31,11 @@ echo -e "${BLUE}---------------------------------------------------${NC}"
 
 for PID in `ps -ef | grep -i ${COIN} | grep daemon | grep conf | grep -v grep | awk '{printf "%d\n", $2}'`; do
    # echo "PID=${PID}"
-   PIDMEM=$(cat /proc/${PID}/status |grep VmRSS | awk '{printf "%d\n", $2}')
+   PIDMEM=$(cat /proc/${PID}/status | grep VmRSS | awk '{printf "%d\n", $2}')
    # echo "PIDMEM=${PIDMEM}"
    TOTALMEM=$(expr ${TOTALMEM} + ${PIDMEM})
 
-   PIDCPU=$(echo `ps -p ${PID} -o %cpu | grep -v CPU |awk '{printf "%0.2f\n", $1}'`)
+   PIDCPU=$(echo `ps -p ${PID} -o %cpu | grep -v CPU | awk '{printf "%0.2f\n", $1}'`)
    # echo "PIDCPU=${PIDCPU}"
    TOTALCPU=$(echo "${TOTALCPU} + ${PIDCPU}" | bc)
 
@@ -68,7 +68,7 @@ TOTALCPU=$(echo "${TOTALCPU} / ${NUMBOFCPUCORES}" |bc)
 echo -e "${GREEN}Total CPU% used ${TOTALCPU}%${NC}"
 
 TOTALMEMMB=$(expr ${TOTALMEM} / 1024)
-# echo "Total memory used ${TOTALMEMMB} Mb"
+# echo "Total memory used ${TOTALMEMMB} MB"
 
 AVERAGEMEMMB=$(expr ${TOTALMEMMB} / ${COUNTER})
 
@@ -82,16 +82,16 @@ AVERAGECPU=$(echo "${TOTALCPU} / ${COUNTER}" |bc -l)
 echo -e "${GREEN}Average CPU used ${AVERAGECPU}% per node${NC}"
 
 TOTALMEMGB=$(expr ${TOTALMEMMB} / 1024)
-echo -e "${GREEN}Total memory used ${TOTALMEMGB} Gb${NC}"
+echo -e "${GREEN}Total memory used ${TOTALMEMGB} GB${NC}"
 
-echo -e "${GREEN}Average memory used ${AVERAGEMEMMB} Mb per node${NC}"
+echo -e "${GREEN}Average memory used ${AVERAGEMEMMB} MB per node${NC}"
 
-FREEMEMMB=$(free -m | grep Mem | awk '{printf "%d\n", $4}')
-echo -e "${GREEN}Free memory ${FREEMEMMB} Mb${NC}"
+FREEMEMMB=$(free --mega | grep Mem | awk '{printf "%d\n", $4}')
+echo -e "${GREEN}Free memory ${FREEMEMMB} MB${NC}"
 NUMOFFREENODESMEM=$(expr ${FREEMEMMB} / ${AVERAGEMEMMB})
 
-AVAILABLEMEMMB=$(free -m | grep Mem | awk '{printf "%d\n", $7}')
-echo -e "${GREEN}Available memory ${AVAILABLEMEMMB} Mb${NC}"
+AVAILABLEMEMMB=$(free --mega | grep Mem | awk '{printf "%d\n", $7}')
+echo -e "${GREEN}Available memory ${AVAILABLEMEMMB} MB${NC}"
 NUMOFFREENODESAVAILABLEMEM=$(expr ${AVAILABLEMEMMB} / ${AVERAGEMEMMB})
 
 if [ -z "$AVERAGECPU" ]; then
