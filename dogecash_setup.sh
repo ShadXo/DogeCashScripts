@@ -576,6 +576,7 @@ EOF
 
   if [ -z "$PID" ]; then
     CHECKNODE="*"
+    echo "Checking available nodes to use for a faster sync."
     for FILE in $(ls ~/bin/${NAME}-cli_$CHECKNODE.sh | sort -V); do
       #SYNCNODEALIAS=$(echo $FILE | awk -F'[_.]' '{print $2}')
       #SYNCNODECONFDIR=$(echo "$HOME/.${NAME}_$SYNCNODEALIAS")
