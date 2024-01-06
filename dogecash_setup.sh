@@ -137,7 +137,8 @@ apt-get install -y net-tools > /dev/null # Needed by netstat used in get_ip func
 
 get_ip
 #IP="[${NODEIP}]"
-PUBIPv4=$( timeout --signal=SIGKILL 10s wget -4qO- -T 10 -t 2 -o- "--bind-address=${NODEIP}" http://ipinfo.io/ip )
+echo "Trying to detect Public IP ..."
+PUBIPv4=$( timeout --signal=SIGKILL 10s wget -4qO- -T 10 -t 2 -o- "--bind-address=${NODEIP}" http://v4.ident.me )
 PUBIPv6=$( timeout --signal=SIGKILL 10s wget -6qO- -T 10 -t 2 -o- "--bind-address=${NODEIP}" http://v6.ident.me )
 if [[ $NODEIP =~ .*:.* ]]; then
   #INTIP=$(ip -4 addr show dev $ips | grep inet | awk -F '[ \t]+|/' '{print $3}' | head -1)
@@ -147,6 +148,13 @@ if [[ $NODEIP =~ .*:.* ]]; then
   else
   IP=${NODEIP}
   EXTERNALIP=${PUBIPv4}
+fi
+
+if [ -z "$EXTERNALIP" ]; then
+  echo "Public IP NOT detected, exiting installer."
+  break
+else
+  echo "PUBLIC IP: $EXTERNALIP"
 fi
 
 echo -e "${YELLOW}Do you want to install all needed dependencies (no if you did it before, yes if you are installing your first node)? [y/n]${NC}"
