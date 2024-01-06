@@ -90,17 +90,17 @@ do
 			#echo "FILE: $FILE"
 
       if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
-        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/block/$BLOCK | jq -r ".hash")
+        EXPLORERBLOCKHASH=$(curl -s $EXPLORER/block/$BLOCK | jq -r ".hash")
       elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
-        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/height/$BLOCK | jq -r ".result.hash")
+        EXPLORERBLOCKHASH=$(curl -s $EXPLORER/height/$BLOCK | jq -r ".result.hash")
       elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
-        #EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
+        #EXPLORERBLOCKHASH=$(curl -s $EXPLORER/blocks | jq -r ".response[0].blockhash")
         echo "Can't get a specific block on decenomy explorers..."
         break 2
       elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
-        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$BLOCK)
+        EXPLORERBLOCKHASH=$(curl -s $EXPLORER/getblockhash?index=$BLOCK)
       elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
-        EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$BLOCK | sed 's/"//g')
+        EXPLORERBLOCKHASH=$(curl -s $EXPLORER/getblockhash?index=$BLOCK | sed 's/"//g')
       else
         echo "Unknown coin explorer, we can't compare blockhash."
         break 2

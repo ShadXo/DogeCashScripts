@@ -549,29 +549,34 @@ EOF
   if [ -z "$PID" ] && [ "$ADDNODESURL" ]; then
     if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
       if [ "$NAME" == "dogecash" ]; then
-        ADDNODES=$( curl -s4 https://api.dogecash.org/api/v1/network/peers | jq -r ".result" | jq -r '.[]' )
+        ADDNODES=$( curl -s https://api.dogecash.org/api/v1/network/peers | jq -r ".result" | jq -r '.[]' )
       else
         echo "Not tried it yet"
       fi
     elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
       #ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf ) # If using Dropbox link
-      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
+      ADDNODES=$( curl -s ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
     elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
-      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
+      ADDNODES=$( curl -s ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
     elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
-      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[] | select( .port | contains($PORT)) | .address' )
+      ADDNODES=$( curl -s ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[] | select( .port | contains($PORT)) | .address' )
     elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
-      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[].addr | select( . | contains($PORT))' )
+      ADDNODES=$( curl -s ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[].addr | select( . | contains($PORT))' )
     else
       echo "Unknown coin explorer, we will continue without addnodes."
       break
     fi
 
-    sed -i '/addnode=/d' $CONF_DIR/${NAME}.conf
-    sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
-    #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
-    echo "${ADDNODES}" | sed "s/^/addnode=/g" >> $CONF_DIR/${NAME}.conf
-    sed -i '/addnode=localhost:56740/d' $CONF_DIR/${NAME}.conf # Remove addnode=localhost:56740 line from config, api is giving localhost back as a peer
+    if [ "$ADDNODES" ]; then
+      sed -i '/addnode=/d' $CONF_DIR/${NAME}.conf
+      sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $CONF_DIR/${NAME}.conf # Remove empty lines at the end
+      #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
+      echo "${ADDNODES}" | sed "s/^/addnode=/g" >> $CONF_DIR/${NAME}.conf
+      sed -i '/addnode=localhost:56740/d' $CONF_DIR/${NAME}.conf # Remove addnode=localhost:56740 line from config, api is giving localhost back as a peer
+    else
+      echo "Empty response from coin explorer, we will continue without addnodes."
+      break
+    fi
   fi
 
   if [ -z "$PID" ]; then
@@ -585,32 +590,32 @@ EOF
       if [ "$CHECKNODEALIAS" != "$ALIAS" ]; then
         echo "Checking ${CHECKNODEALIAS}."
         if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
-          EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER | jq -r ".backend.blocks")
-          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER | jq -r ".backend.bestBlockHash")
-          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER | jq -r ".backend.version")
+          EXPLORERLASTBLOCK=$(curl -s $EXPLORER | jq -r ".backend.blocks")
+          EXPLORERBLOCKHASH=$(curl -s $EXPLORER | jq -r ".backend.bestBlockHash")
+          EXPLORERWALLETVERSION=$(curl -s $EXPLORER | jq -r ".backend.version")
         elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
-          #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
-          #BLOCKHASHCOINEXPLORER=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
-          #BLOCKHASHCOINEXPLORER=$(curl -s4 https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
-          #LATESTWALLETVERSION=$(curl -s4 https://dogec.flitswallet.app/api/blocks | jq -r ".backend.version")
-          EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/info | jq -r ".result.blocks")
-          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
+          #BLOCKHASHCOINEXPLORER=$(curl -s https://explorer.dogec.io/api/blocks | jq -r ".backend.bestblockhash")
+          #BLOCKHASHCOINEXPLORER=$(curl -s https://dogec.flitswallet.app/api/blocks | jq -r ".backend.bestBlockHash")
+          #BLOCKHASHCOINEXPLORER=$(curl -s https://api2.dogecash.org/info | jq -r ".result.bestblockhash")
+          #LATESTWALLETVERSION=$(curl -s https://dogec.flitswallet.app/api/blocks | jq -r ".backend.version")
+          EXPLORERLASTBLOCK=$(curl -s $EXPLORER/info | jq -r ".result.blocks")
+          EXPLORERBLOCKHASH=$(curl -s $EXPLORER/info | jq -r ".result.bestblockhash")
           EXPLORERWALLETVERSION=0 # Can't get this from https://api2.dogecash.org
         elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
-          #BLOCKHASHCOINEXPLORER=$(curl -s4 https://explorer.trittium.net/coreapi/v1/coins/MONK/blocks | jq -r ".response[0].blockhash")
-          #LATESTWALLETVERSION=$(curl -s4 https://https://explorer.decenomy.net/coreapi/v1/coins/DOGECASH?expand=overview | jq -r ".response.versions.wallet")
-          EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].height")
-          #EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER | jq -r ".response.bestblockheight")
-          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
-          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
+          #BLOCKHASHCOINEXPLORER=$(curl -s https://explorer.trittium.net/coreapi/v1/coins/MONK/blocks | jq -r ".response[0].blockhash")
+          #LATESTWALLETVERSION=$(curl -s https://https://explorer.decenomy.net/coreapi/v1/coins/DOGECASH?expand=overview | jq -r ".response.versions.wallet")
+          EXPLORERLASTBLOCK=$(curl -s $EXPLORER/blocks | jq -r ".response[0].height")
+          #EXPLORERLASTBLOCK=$(curl -s $EXPLORER | jq -r ".response.bestblockheight")
+          EXPLORERBLOCKHASH=$(curl -s $EXPLORER/blocks | jq -r ".response[0].blockhash")
+          EXPLORERWALLETVERSION=$(curl -s $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
         elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
-          EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
-          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK)
-          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
+          EXPLORERLASTBLOCK=$(curl -s $EXPLORER/getblockcount)
+          EXPLORERBLOCKHASH=$(curl -s $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK)
+          EXPLORERWALLETVERSION=$(curl -s $EXPLORER/getinfo | jq -r ".version")
         elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
-          EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
-          EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | sed 's/"//g')
-          EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
+          EXPLORERLASTBLOCK=$(curl -s $EXPLORER/getblockcount)
+          EXPLORERBLOCKHASH=$(curl -s $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | sed 's/"//g')
+          EXPLORERWALLETVERSION=$(curl -s $EXPLORER/getinfo | jq -r ".version")
         else
           echo "Unknown coin explorer, we can't compare blockhash or walletversion."
           break

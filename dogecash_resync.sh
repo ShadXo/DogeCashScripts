@@ -104,25 +104,25 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   #WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getbestblockhash)
 
   if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
-    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER | jq -r ".backend.blocks")
-    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER | jq -r ".backend.bestBlockHash")
-    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER | jq -r ".backend.version")
+    EXPLORERLASTBLOCK=$(curl -s $EXPLORER | jq -r ".backend.blocks")
+    EXPLORERBLOCKHASH=$(curl -s $EXPLORER | jq -r ".backend.bestBlockHash")
+    EXPLORERWALLETVERSION=$(curl -s $EXPLORER | jq -r ".backend.version")
   elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
-    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/info | jq -r ".result.blocks")
-    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/info | jq -r ".result.bestblockhash")
+    EXPLORERLASTBLOCK=$(curl -s $EXPLORER/info | jq -r ".result.blocks")
+    EXPLORERBLOCKHASH=$(curl -s $EXPLORER/info | jq -r ".result.bestblockhash")
     EXPLORERWALLETVERSION=0 # Can't get this from https://api2.dogecash.org
   elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
-    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].height")
-    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/blocks | jq -r ".response[0].blockhash")
-    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
+    EXPLORERLASTBLOCK=$(curl -s $EXPLORER/blocks | jq -r ".response[0].height")
+    EXPLORERBLOCKHASH=$(curl -s $EXPLORER/blocks | jq -r ".response[0].blockhash")
+    EXPLORERWALLETVERSION=$(curl -s $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
   elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
-    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
-    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK)
-    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
+    EXPLORERLASTBLOCK=$(curl -s $EXPLORER/getblockcount)
+    EXPLORERBLOCKHASH=$(curl -s $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK)
+    EXPLORERWALLETVERSION=$(curl -s $EXPLORER/getinfo | jq -r ".version")
   elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
-    EXPLORERLASTBLOCK=$(curl -s4 $EXPLORER/getblockcount)
-    EXPLORERBLOCKHASH=$(curl -s4 $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | sed 's/"//g')
-    EXPLORERWALLETVERSION=$(curl -s4 $EXPLORER/getinfo | jq -r ".version")
+    EXPLORERLASTBLOCK=$(curl -s $EXPLORER/getblockcount)
+    EXPLORERBLOCKHASH=$(curl -s $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | sed 's/"//g')
+    EXPLORERWALLETVERSION=$(curl -s $EXPLORER/getinfo | jq -r ".version")
   else
     echo "Unknown coin explorer, we can't compare blockhash or walletversion."
     break

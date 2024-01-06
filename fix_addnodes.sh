@@ -94,29 +94,34 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
   if [ -z "$NODEPID" ] && [ "$ADDNODESURL" ]; then
     if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
       if [ "$NAME" == "dogecash" ]; then
-        ADDNODES=$( curl -s4 https://api.dogecash.org/api/v1/network/peers | jq -r ".result" | jq -r '.[]' )
+        ADDNODES=$( curl -s https://api.dogecash.org/api/v1/network/peers | jq -r ".result" | jq -r '.[]' )
       else
         echo "Not tried it yet"
       fi
     elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
       #ADDNODES=$( wget -4qO- -o- ${ADDNODESURL} | grep 'addnode=' | shuf ) # If using Dropbox link
-      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
+      ADDNODES=$( curl -s ${ADDNODESURL} | jq -r ".result" | jq -r '.[]' )
     elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
-      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
+      ADDNODES=$( curl -s ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.response | .[].addr | select( . | contains($PORT))' )
     elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
-      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[] | select( .port | contains($PORT)) | .address' )
+      ADDNODES=$( curl -s ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[] | select( .port | contains($PORT)) | .address' )
     elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
-      ADDNODES=$( curl -s4 ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[].addr | select( . | contains($PORT))' )
+      ADDNODES=$( curl -s ${ADDNODESURL} | jq -r --arg PORT "$PORT" '.[].addr | select( . | contains($PORT))' )
     else
       echo "Unknown coin explorer, we will continue without addnodes."
       break
     fi
 
-    sed -i '/addnode=/d' $NODECONFDIR/${NAME}.conf
-    sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $NODECONFDIR/${NAME}.conf # Remove empty lines at the end
-    #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
-    echo "${ADDNODES}" | sed "s/^/addnode=/g" >> $NODECONFDIR/${NAME}.conf
-    sed -i '/addnode=localhost:56740/d' $NODECONFDIR/${NAME}.conf # Remove addnode=localhost:56740 line from config, api is giving localhost back as a peer
+    if [ "$ADDNODES" ]; then
+      sed -i '/addnode=/d' $NODECONFDIR/${NAME}.conf
+      sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' $NODECONFDIR/${NAME}.conf # Remove empty lines at the end
+      #echo "${ADDNODES}" | tr " " "\\n" >> $CONF_DIR/${NAME}.conf # If using Dropbox link
+      echo "${ADDNODES}" | sed "s/^/addnode=/g" >> $NODECONFDIR/${NAME}.conf
+      sed -i '/addnode=localhost:56740/d' $NODECONFDIR/${NAME}.conf # Remove addnode=localhost:56740 line from config, api is giving localhost back as a peer
+    else
+      echo "Empty response from coin explorer, we will continue without addnodes."
+      break
+    fi
   fi
 
   NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
