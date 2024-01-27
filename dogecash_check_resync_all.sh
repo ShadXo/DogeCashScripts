@@ -75,153 +75,155 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 
   for (( ; ; ))
   do
-  sleep 2
+    sleep 2 # wait 2 seconds
 
-	NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-	echo "NODEPID="$NODEPID
+  	NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+  	echo "NODEPID="$NODEPID
 
-	if [ -z "$NODEPID" ]; then
-	  echo "Node $NODEALIAS is STOPPED can't check if synced!"
-	  break
-	fi
+  	if [ -z "$NODEPID" ]; then
+  	  echo "Node $NODEALIAS is STOPPED can't check if synced!"
+  	  break
+  	fi
 
-  WALLETLASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
-  WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $WALLETLASTBLOCK)
-  #WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getbestblockhash)
+    WALLETLASTBLOCK=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockcount)
+    WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getblockhash $WALLETLASTBLOCK)
+    #WALLETBLOCKHASH=$(~/bin/${NAME}-cli_$NODEALIAS.sh getbestblockhash)
 
-  if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
-    EXPLORERLASTBLOCK=$(curl -s $EXPLORER | jq -r ".backend.blocks")
-    EXPLORERBLOCKHASH=$(curl -s $EXPLORER | jq -r ".backend.bestBlockHash")
-    EXPLORERWALLETVERSION=$(curl -s $EXPLORER | jq -r ".backend.version")
-  elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
-    EXPLORERLASTBLOCK=$(curl -s $EXPLORER/info | jq -r ".result.blocks")
-    EXPLORERBLOCKHASH=$(curl -s $EXPLORER/info | jq -r ".result.bestblockhash")
-    EXPLORERWALLETVERSION=0 # Can't get this from https://api2.dogecash.org
-  elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
-    EXPLORERLASTBLOCK=$(curl -s $EXPLORER/blocks | jq -r ".response[0].height")
-    EXPLORERBLOCKHASH=$(curl -s $EXPLORER/blocks | jq -r ".response[0].blockhash")
-    EXPLORERWALLETVERSION=$(curl -s $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
-  elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
-    EXPLORERLASTBLOCK=$(curl -s $EXPLORER/getblockcount)
-    EXPLORERBLOCKHASH=$(curl -s $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK)
-    EXPLORERWALLETVERSION=$(curl -s $EXPLORER/getinfo | jq -r ".version")
-  elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
-    EXPLORERLASTBLOCK=$(curl -s $EXPLORER/getblockcount)
-    EXPLORERBLOCKHASH=$(curl -s $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | sed 's/"//g')
-    EXPLORERWALLETVERSION=$(curl -s $EXPLORER/getinfo | jq -r ".version")
-  else
-    echo "Unknown coin explorer, we can't compare blockhash or walletversion."
-    break
-  fi
+    if [ "$EXPLORERAPI" == "BLOCKBOOK" ]; then
+      EXPLORERLASTBLOCK=$(curl -s $EXPLORER | jq -r ".backend.blocks")
+      EXPLORERBLOCKHASH=$(curl -s $EXPLORER | jq -r ".backend.bestBlockHash")
+      EXPLORERWALLETVERSION=$(curl -s $EXPLORER | jq -r ".backend.version")
+    elif [ "$EXPLORERAPI" == "DOGECASH" ]; then
+      EXPLORERLASTBLOCK=$(curl -s $EXPLORER/info | jq -r ".result.blocks")
+      EXPLORERBLOCKHASH=$(curl -s $EXPLORER/info | jq -r ".result.bestblockhash")
+      EXPLORERWALLETVERSION=0 # Can't get this from https://api2.dogecash.org
+    elif [ "$EXPLORERAPI" == "DECENOMY" ]; then
+      EXPLORERLASTBLOCK=$(curl -s $EXPLORER/blocks | jq -r ".response[0].height")
+      EXPLORERBLOCKHASH=$(curl -s $EXPLORER/blocks | jq -r ".response[0].blockhash")
+      EXPLORERWALLETVERSION=$(curl -s $EXPLORER?expand=overview | jq -r ".response.overview.versions.wallet")
+    elif [ "$EXPLORERAPI" == "IQUIDUS" ]; then
+      EXPLORERLASTBLOCK=$(curl -s $EXPLORER/getblockcount)
+      EXPLORERBLOCKHASH=$(curl -s $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK)
+      EXPLORERWALLETVERSION=$(curl -s $EXPLORER/getinfo | jq -r ".version")
+    elif [ "$EXPLORERAPI" == "IQUIDUS-OLD" ]; then
+      EXPLORERLASTBLOCK=$(curl -s $EXPLORER/getblockcount)
+      EXPLORERBLOCKHASH=$(curl -s $EXPLORER/getblockhash?index=$EXPLORERLASTBLOCK | sed 's/"//g')
+      EXPLORERWALLETVERSION=$(curl -s $EXPLORER/getinfo | jq -r ".version")
+    else
+      echo "Unknown coin explorer, we can't compare blockhash or walletversion."
+      break
+    fi
 
-  WALLETVERSION=$(~/bin/${NAME}-cli_$NODEALIAS.sh getinfo | jq ".version")
+    WALLETVERSION=$(~/bin/${NAME}-cli_$NODEALIAS.sh getinfo | jq ".version")
 
-  echo "WALLETLASTBLOCK="$WALLETLASTBLOCK
-  echo "EXPLORERLASTBLOCK="$EXPLORERLASTBLOCK
-  echo "WALLETBLOCKHASH="$WALLETBLOCKHASH
-  echo "EXPLORERBLOCKHASH="$EXPLORERBLOCKHASH
-  echo "WALLETVERSION="$WALLETVERSION
-  echo "EXPLORERWALLETVERSION="$EXPLORERWALLETVERSION
+    echo "WALLETLASTBLOCK="$WALLETLASTBLOCK
+    echo "EXPLORERLASTBLOCK="$EXPLORERLASTBLOCK
+    echo "WALLETBLOCKHASH="$WALLETBLOCKHASH
+    echo "EXPLORERBLOCKHASH="$EXPLORERBLOCKHASH
+    echo "WALLETVERSION="$WALLETVERSION
+    echo "EXPLORERWALLETVERSION="$EXPLORERWALLETVERSION
 
-  if [ "$WALLETBLOCKHASH" == "$EXPLORERBLOCKHASH" ]; then
-    echo "Wallet $NODEALIAS is SYNCED!"
-    break
-  elif [ "$BLOCKHASHCOINEXPLORER" == "Too" ]; then
-    echo "COINEXPLORER Too many requests"
-  else
-    echo "Wallet $NODEALIAS is NOT SYNCED!"
-  fi
+    if [ "$WALLETBLOCKHASH" == "$EXPLORERBLOCKHASH" ]; then
+      echo "Wallet $NODEALIAS is SYNCED!"
+      break
+    elif [ "$BLOCKHASHCOINEXPLORER" == "Too" ]; then
+      echo "COINEXPLORER Too many requests"
+    else
+      echo "Wallet $NODEALIAS is NOT SYNCED!"
+    fi
 
-  for (( ; ; ))
-  do
+    for (( ; ; ))
+    do
+      NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+      if [ -z "$NODEPID" ]; then
+        echo ""
+        break
+      else
+        #STOP
+        echo "Stopping $NODEALIAS. Please wait ..."
+        DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
+        if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
+          echo "You need to update and run the main menu again (dogecash.sh). It will upgrade some things"
+          ~/bin/${NAME}-cli_$NODEALIAS.sh stop
+        else
+          systemctl stop ${NAME}_$NODEALIAS.service
+        fi
+        #systemctl stop ${NAME}_$NODEALIAS.service
+      fi
+      #echo "Please wait ..."
+      sleep 2 # wait 2 seconds
+    done
+
+    if [[ "$COUNTER" -gt 1 ]]; then
+      echo "Node still running, killing the process this time."
+      kill -9 $NODEPID
+    fi
+
+    sleep 2 # wait 2 seconds
     NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-    if [ -z "$NODEPID" ]; then
-      echo ""
+    echo "NODEPID="$NODEPID
+
+    if [ -z "$NODEPID" ] && [ "$BOOTSTRAPURL" ]; then
+      echo "Node $NODEALIAS is STOPPED"
+
+      # Create Temp folder
+      mkdir -p $CONF_DIR_TMP
+      cd $CONF_DIR_TMP
+
+      if [ ! -f "bootstrap.tar.gz" ] && [[ $BOOTSTRAPURL == *.tar.gz ]]; then
+        echo "Downloading bootstrap"
+        wget ${BOOTSTRAPURL} -O bootstrap.tar.gz
+        WGET=$?
+      elif [ ! -f "bootstrap.zip" ] && [[ $BOOTSTRAPURL == *.zip ]]; then
+        echo "Downloading bootstrap"
+        wget ${BOOTSTRAPURL} -O bootstrap.zip
+        WGET=$?
+      else
+        echo "Bootstrap already exists, skipping download"
+      fi
+
+      if [ $WGET -eq 0 ]; then
+        echo "Downloading bootstrap successful"
+        #cd ~
+        cd $NODECONFDIR
+        echo "Copying BLOCKCHAIN from bootstrap without conf files"
+        rm -R ./database &> /dev/null
+        rm -R ./blocks	&> /dev/null
+        rm -R ./sporks &> /dev/null
+        rm -R ./chainstate &> /dev/null
+
+        if [[ $BOOTSTRAPURL == *.tar.gz ]]; then
+          tar -xvzf $CONF_DIR_TMP/bootstrap.tar.gz -C $NODECONFDIR --exclude="*.conf"
+        elif [[ $BOOTSTRAPURL == *.zip ]]; then
+          unzip -o $CONF_DIR_TMP/bootstrap.zip -d $NODECONFDIR -x "*.conf"
+        fi
+      fi
+
+      NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
+      if [ -z "$NODEPID" ]; then
+        # start wallet
+        echo "Starting $NODEALIAS."
+        DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
+        if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
+          ~/bin/${NAME}d_$NODEALIAS.sh
+        else
+          systemctl start ${NAME}_$NODEALIAS.service
+        fi
+        #systemctl start ${NAME}_$NODEALIAS.service
+        sleep 2 # wait 2 seconds
+      fi
+
       break
     else
-      #STOP
-      echo "Stopping $NODEALIAS. Please wait ..."
-      DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
-      if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
-        echo "You need to update and run the main menu again (dogecash.sh). It will upgrade some things"
-        ~/bin/${NAME}-cli_$NODEALIAS.sh stop
-      else
-        systemctl stop ${NAME}_$NODEALIAS.service
-      fi
-      #systemctl stop ${NAME}_$NODEALIAS.service
-    fi
-    #echo "Please wait ..."
-    sleep 2 # wait 2 seconds
-  done
-
-  if [[ "$COUNTER" -gt 1 ]]; then
-    kill -9 $NODEPID
-  fi
-
-  sleep 2 # wait 2 seconds
-  NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-  echo "NODEPID="$NODEPID
-
-  if [ -z "$NODEPID" ] && [ "$BOOTSTRAPURL" ]; then
-    echo "Node $NODEALIAS is STOPPED"
-
-    # Create Temp folder
-    mkdir -p $CONF_DIR_TMP
-    cd $CONF_DIR_TMP
-
-    if [ ! -f "bootstrap.tar.gz" ] && [[ $BOOTSTRAPURL == *.tar.gz ]]; then
-      echo "Downloading bootstrap"
-      wget ${BOOTSTRAPURL} -O bootstrap.tar.gz
-      WGET=$?
-    elif [ ! -f "bootstrap.zip" ] && [[ $BOOTSTRAPURL == *.zip ]]; then
-      echo "Downloading bootstrap"
-      wget ${BOOTSTRAPURL} -O bootstrap.zip
-      WGET=$?
-    else
-      echo "Bootstrap already exists, skipping download"
+      echo "Node $NODEALIAS still running!"
     fi
 
-    if [ $WGET -eq 0 ]; then
-      echo "Downloading bootstrap successful"
-      #cd ~
-      cd $NODECONFDIR
-      echo "Copying BLOCKCHAIN from bootstrap without conf files"
-      rm -R ./database &> /dev/null
-      rm -R ./blocks	&> /dev/null
-      rm -R ./sporks &> /dev/null
-      rm -R ./chainstate &> /dev/null
-
-      if [[ $BOOTSTRAPURL == *.tar.gz ]]; then
-        tar -xvzf $CONF_DIR_TMP/bootstrap.tar.gz -C $NODECONFDIR --exclude="*.conf"
-      elif [[ $BOOTSTRAPURL == *.zip ]]; then
-        unzip -o $CONF_DIR_TMP/bootstrap.zip -d $NODECONFDIR -x "*.conf"
-      fi
+    COUNTER=$[COUNTER + 1]
+    echo COUNTER: $COUNTER
+    if [[ "$COUNTER" -gt 2 ]]; then
+      echo "Tried stopping node $NODEALIAS, skipping node."
+      break
     fi
-
-    NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
-    if [ -z "$NODEPID" ]; then
-      # start wallet
-      echo "Starting $NODEALIAS."
-      DAEMONSYSTEMDFILE="/etc/systemd/system/${NAME}_$NODEALIAS.service"
-      if [[ ! -f "${DAEMONSYSTEMDFILE}" ]]; then
-        ~/bin/${NAME}d_$NODEALIAS.sh
-      else
-        systemctl start ${NAME}_$NODEALIAS.service
-      fi
-      #systemctl start ${NAME}_$NODEALIAS.service
-      sleep 2 # wait 2 seconds
-    fi
-
-    break
-  else
-    echo "Node $NODEALIAS still running!"
-  fi
-
-  COUNTER=$[COUNTER + 1]
-  echo COUNTER: $COUNTER
-  if [[ "$COUNTER" -gt 9 ]]; then
-    break
-  fi
   done
 done
 
