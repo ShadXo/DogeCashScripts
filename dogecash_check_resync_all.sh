@@ -125,6 +125,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 
   if [ "$WALLETBLOCKHASH" == "$EXPLORERBLOCKHASH" ]; then
     echo "Wallet $NODEALIAS is SYNCED!"
+    break
   elif [ "$BLOCKHASHCOINEXPLORER" == "Too" ]; then
     echo "COINEXPLORER Too many requests"
   else
@@ -189,7 +190,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
       if [[ $BOOTSTRAPURL == *.tar.gz ]]; then
         tar -xvzf $CONF_DIR_TMP/bootstrap.tar.gz -C $NODECONFDIR --exclude="*.conf"
       elif [[ $BOOTSTRAPURL == *.zip ]]; then
-        unzip $CONF_DIR_TMP/bootstrap.zip -d $NODECONFDIR -x "*.conf"
+        unzip -o $CONF_DIR_TMP/bootstrap.zip -d $NODECONFDIR -x "*.conf"
       fi
     fi
 
