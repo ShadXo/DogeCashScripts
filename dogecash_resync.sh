@@ -90,6 +90,7 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 
   for (( ; ; ))
   do
+
     sleep 2
 
 	NODEPID=`ps -ef | grep -i -w ${NAME}_$NODEALIAS | grep -i ${NAME}d | grep -v grep | awk '{print $2}'`
@@ -173,17 +174,21 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 
 	if [ -z "$NODEPID" ]; then
 	  echo "Node $NODEALIAS is STOPPED"
+
     # Create Temp folder
     mkdir -p $CONF_DIR_TMP
     cd $CONF_DIR_TMP
 
-    echo "Downloading bootstrap"
-    if [[ $BOOTSTRAPURL == *.tar.gz ]]; then
+    if [ ! -f "bootstrap.tar.gz" ] && [[ $BOOTSTRAPURL == *.tar.gz ]]; then
+      echo "Downloading bootstrap"
       wget ${BOOTSTRAPURL} -O bootstrap.tar.gz
       WGET=$?
-    elif [[ $BOOTSTRAPURL == *.zip ]]; then
+    elif [ ! -f "bootstrap.zip" ] && [[ $BOOTSTRAPURL == *.zip ]]; then
+      echo "Downloading bootstrap"
       wget ${BOOTSTRAPURL} -O bootstrap.zip
       WGET=$?
+    else
+      echo "Bootstrap already exists, skipping download"
     fi
 
     if [ $WGET -eq 0 ]; then
@@ -235,3 +240,8 @@ for FILE in $(ls ~/bin/${NAME}d_$ALIAS.sh | sort -V); do
 	fi
   done
 done
+
+# Remove temp folder
+if [ -d "$CONF_DIR_TMP" ]; then
+  rm -rfd $CONF_DIR_TMP
+fi

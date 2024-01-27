@@ -670,13 +670,16 @@ STOPPROCESS
       cp -r $SYNCNODECONFDIR/chainstate $CONF_DIR &> /dev/null
     elif [ -z "$PID" ] && [ "$BOOTSTRAPURL" ]; then
       cd $CONF_DIR_TMP
-      echo "Downloading bootstrap"
-      if [[ $BOOTSTRAPURL == *.tar.gz ]]; then
+      if [ ! -f "bootstrap.tar.gz" ] && [[ $BOOTSTRAPURL == *.tar.gz ]]; then
+        echo "Downloading bootstrap"
         wget ${BOOTSTRAPURL} -O bootstrap.tar.gz
         WGET=$?
-      elif [[ $BOOTSTRAPURL == *.zip ]]; then
+      elif [ ! -f "bootstrap.zip" ] && [[ $BOOTSTRAPURL == *.zip ]]; then
+        echo "Downloading bootstrap"
         wget ${BOOTSTRAPURL} -O bootstrap.zip
         WGET=$?
+      else
+        echo "Bootstrap already exists, skipping download"
       fi
 
       #if [ $? -eq 0 ]; then
