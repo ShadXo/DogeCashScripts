@@ -75,7 +75,7 @@ echo && echo
 #echo "******** Powered by the DogeCash Community ********"
 echo "************** Powered by DogeCash ****************"
 echo "************** https://dogecash.net ***************"
-echo "***************************************** v1.1.0 **"
+echo "***************************************** v1.2.0 **"
 #echo "******************** ${COIN^^} *********************"
 center ${COIN^^}
 echo "******************** MAIN MENU ********************"
@@ -90,11 +90,12 @@ echo -e "7) CHECK NODES STATUS" #  -> DOGECASH_CHECK_STATUS.SH" # OK
 echo -e "8) RESYNC SPECIFIC NODE (useful if node is stopped)" # -> DOGECASH_RESYNC.sh # OK
 echo -e "9) REMOVE SPECIFIC NODE" # -> DOGECASH_REMOVE.sh # OK
 echo -e "10) UPDATE NODE WALLET" # -> UPDATE_WALLET.sh # OK
-echo -e "11) CALCULATE FREE MEMORY AND CPU FOR NEW NODES" # -> memory_cpu_sysinfo.sh # OK
-echo -e "60) NODE INFO (DO NOT SHARE WITHOUT REMOVING PRIVATE INFO)" # -> dogecash_info.sh # OK
-echo -e "70) FORK FINDER" # -> find_fork.sh # OK
-echo -e "${ACCENTCOLOR}12) DOGECASH LOGO${MAINCOLOR}" # DOGECASH LOGO
-echo -e "0) EXIT${NC}" # OK
+echo -e "11) UPDATE WALLET ADDNODES" # -> UPDATE_ADDNODES.sh # OK
+echo -e "12) NODE INFO (DO NOT SHARE WITHOUT REMOVING PRIVATE INFO)" # -> dogecash_info.sh # OK
+echo -e "13) FORK FINDER" # -> find_fork.sh # OK
+echo -e "14) CALCULATE FREE MEMORY AND CPU FOR NEW NODES" # -> memory_cpu_sysinfo.sh # OK
+echo -e "${ACCENTCOLOR}15) DOGECASH LOGO" # DOGECASH LOGO
+echo -e "${MAINCOLOR}0) EXIT${NC}" # OK
 echo "---------------------------------------------------"
 echo "Choose an option:"
 read OPTION
@@ -179,12 +180,38 @@ case $OPTION in
         /bin/bash ./update_wallet.sh -c $COIN
         ;;
     11)
+        echo -e "${MAINCOLOR}For which node do you want the addnodes updated? Enter alias (if empty it will run on all nodes)${NC}"
+        read ALIAS
+        wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/update_addnodes.sh -O update_addnodes.sh > /dev/null 2>&1
+        chmod 777 update_addnodes.sh
+        dos2unix update_addnodes.sh > /dev/null 2>&1
+        /bin/bash ./update_addnodes.sh -c $COIN -n $ALIAS
+        ;;
+    12)
+        echo -e "${MAINCOLOR}For which node do you want to get info? Enter alias (if empty it will run on all nodes)${NC}"
+        read ALIAS
+        wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_info.sh -O dogecash_info.sh > /dev/null 2>&1
+        chmod 777 dogecash_info.sh
+        dos2unix dogecash_info.sh > /dev/null 2>&1
+        /bin/bash ./dogecash_info.sh -c $COIN -n $ALIAS
+        ;;
+    13)
+        echo -e "${MAINCOLOR}On which node do you want to check for a fork? Enter alias (mandatory!)${NC}"
+        read NODE
+        echo -e "${MAINCOLOR}Start checking from block? (mandatory!)${NC}"
+        read BLOCK
+        wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/find_fork.sh -O find_fork.sh > /dev/null 2>&1
+        chmod 777 find_fork.sh
+        dos2unix find_fork.sh > /dev/null 2>&1
+        /bin/bash ./find_fork.sh -c $COIN -n $NODE -b $BLOCK
+        ;;
+    14)
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/memory_cpu_sysinfo.sh -O memory_cpu_sysinfo.sh > /dev/null 2>&1
         chmod 777 memory_cpu_sysinfo.sh
         dos2unix memory_cpu_sysinfo.sh > /dev/null 2>&1
         /bin/bash ./memory_cpu_sysinfo.sh
         ;;
-    12)
+    15)
         wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_logo.sh -O dogecash_logo.sh > /dev/null 2>&1
         chmod 777 dogecash_logo.sh
         dos2unix dogecash_logo.sh > /dev/null 2>&1
@@ -204,24 +231,6 @@ case $OPTION in
         chmod 777 dogecash_setupv1.1.sh
         dos2unix dogecash_setupv1.1.sh > /dev/null 2>&1
         /bin/bash ./dogecash_setupv1.1.sh -c $COIN
-        ;;
-    60)
-        echo -e "${MAINCOLOR}For which node do you want to get info? Enter alias (if empty it will run on all nodes)${NC}"
-        read ALIAS
-        wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/dogecash_info.sh -O dogecash_info.sh > /dev/null 2>&1
-        chmod 777 dogecash_info.sh
-        dos2unix dogecash_info.sh > /dev/null 2>&1
-        /bin/bash ./dogecash_info.sh -c $COIN -n $ALIAS
-        ;;
-    70)
-        echo -e "${MAINCOLOR}On which node do you want to check for a fork? Enter alias (mandatory!)${NC}"
-        read NODE
-        echo -e "${MAINCOLOR}Start checking from block? (mandatory!)${NC}"
-        read BLOCK
-        wget https://raw.githubusercontent.com/ShadXo/DogeCashScripts/master/find_fork.sh -O find_fork.sh > /dev/null 2>&1
-        chmod 777 find_fork.sh
-        dos2unix find_fork.sh > /dev/null 2>&1
-        /bin/bash ./find_fork.sh -c $COIN -n $NODE -b $BLOCK
         ;;
     *) echo "Invalid option $OPTION";;
 esac
